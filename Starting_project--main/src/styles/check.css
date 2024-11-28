@@ -1,0 +1,71 @@
+
+/* Dropdown container */
+.dropdown-container {
+    position: relative;
+    width: 300px;
+    height: 50px;
+    /* margin: 20px; */
+    font-family: Arial, sans-serif;
+  }
+  
+  .dropdown-header {
+    padding: 10px;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    text-align: center;
+    line-height: 50px;
+    /* font-weight: bold; */
+    height: inherit;
+    border-radius: 2px;
+    background-color: white;
+  }
+  
+  .dropdown-header:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    padding: 10px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .checkbox-list {
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  
+  .checkbox-item {
+    display: block;
+    padding: 5px 0;
+    font-size: 14px;
+  }
+  
+  .checkbox-item input {
+    margin-right: 10px;
+  }
+  
+  /* Hover effect for list items */
+  .checkbox-item:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+  }
+  

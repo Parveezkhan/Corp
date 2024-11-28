@@ -1,0 +1,141 @@
+/* General Footer Styles */
+.footer {
+    background-color: #282c34; /* Dark background */
+    color: #fff;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+    max-width: 1200px;
+    flex-wrap: wrap;
+  }
+  
+  .footer-logo h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ff6347; /* Tomato color for the logo */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: fadeInUp 1s ease-in-out forwards;
+  }
+  
+  .footer-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 30px;
+    animation: fadeInUp 1s ease-in-out forwards;
+  }
+  
+  .footer-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  
+  .footer-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #ff6347;
+    transition: width 0.3s ease;
+  }
+  
+  .footer-links a:hover {
+    color: #ff6347;
+  }
+  
+  .footer-links a:hover::after {
+    width: 100%;
+  }
+  
+  .footer-socials {
+    display: flex;
+    gap: 20px;
+    animation: fadeInUp 1s ease-in-out forwards;
+  }
+  
+  .social-icon {
+    text-decoration: none;
+    color: #fff;
+    background-color: #444;
+    padding: 15px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .social-icon:hover {
+    background-color: #ff6347;
+    transform: scale(1.2);
+  }
+  
+  .footer-bottom {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #aaa;
+    animation: fadeInUp 1s ease-in-out forwards;
+  }
+  
+  /* Animation for Footer Elements */
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Media Queries for Responsiveness */
+  @media (max-width: 768px) {
+    .footer-content {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .footer-logo h1 {
+      margin-bottom: 20px;
+    }
+  
+    .footer-links ul {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .footer-socials {
+      justify-content: center;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .footer-logo h1 {
+      font-size: 2rem;
+    }
+  
+    .footer-links ul {
+      gap: 15px;
+    }
+  
+    .footer-socials {
+      gap: 15px;
+    }
+  }
+  

@@ -1,0 +1,124 @@
+/* Dropdowns.css */
+
+.dropdown-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    width: 300px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  .dropdown {
+    display: flex;
+    flex-direction: column;
+    margin: 12px;
+    width: 100%;
+    font-weight: ;
+  }
+  
+  label {
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+  
+  select {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%%;
+  }
+  
+  .selected-values {
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  
+
+
+  /* <section>
+      <div className="container">
+    <div className="">
+      <div className="dropdown">
+        <label htmlFor="dropdown1">Select Day</label>
+        <select
+          name="days"
+          id="dropdown1"
+          value={selectedOptions.dropdown1}
+          onChange={handleChange}
+        >
+          <option value="">Select Day</option>
+          <option value="Full Day">Full Day</option>
+          <option value="Half Day">Half Day</option>
+        </select>
+      </div>
+
+      <div className="dropdown">
+        <label htmlFor="dropdown2">Select Ram</label>
+        <select
+          name="Ram"
+          id="dropdown2"
+          value={selectedOptions.dropdown2}
+          onChange={handleChange}
+        >
+          <option value="">Select Ram</option>
+          <option value="2">2</option>
+          <option value="4">4</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+
+      <div className="dropdown">
+        <label htmlFor="dropdown3">Select Cpu</label>
+        <select
+          name="cpu"
+          id="dropdown3"
+          value={selectedOptions.dropdown3}
+          onChange={handleChange}
+        >
+          <option value="">Select cpu</option>
+          <option value="1"> 1</option>
+          <option value="2"> 2</option>
+          <option value="3"> 3</option>
+        </select>
+      </div>
+
+      <div className="dropdown">
+        <label htmlFor="dropdown3">Select Storage</label>
+        <select
+          name="storage"
+          id="dropdown3"
+          value={selectedOptions.dropdown3}
+          onChange={handleChange}
+        >
+          <option value="">Select Storage</option>
+          <option value="50"> 50</option>
+          <option value="100"> 100</option>
+          <option value="150"> 150</option>
+        </select>
+      </div>
+
+      <div className="dropdown">
+        <label htmlFor="dropdown3">Select Cpu</label>
+        <select
+          name="cpu"
+          id="dropdown3"
+          value={selectedOptions.dropdown3}
+          onChange={handleChange}
+        >
+          <option value="">Select cpu</option>
+          <option value="1"> 1</option>
+          <option value="2"> 2</option>
+          <option value="3"> 3</option>
+        </select>
+      </div>
+
+      
+    </div>
+    </div>
+    </section> */

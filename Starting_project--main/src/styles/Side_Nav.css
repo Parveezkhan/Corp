@@ -1,0 +1,12 @@
+.img{
+    width: 200px !important;
+    height: 50px !important;
+}
+.carosel{
+    width: 80% !important;
+    margin:auto auto !important;
+    height: 400px !important;
+}
+.inner-carosel{
+    height:400px !important;
+} 
