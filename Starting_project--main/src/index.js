@@ -9,14 +9,21 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 //import context
 import { AuthProvider } from './context/auth';
+import { LogProvider } from './context/Log';
+
+//import toastify
+import { ToastContainer } from 'react-toastify';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   
   <AuthProvider>
+   <LogProvider>
      <React.StrictMode>
     <App />
+    <ToastContainer theme='dark'/>
   </React.StrictMode>
+  </LogProvider>
   </AuthProvider>
  
   

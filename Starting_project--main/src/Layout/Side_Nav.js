@@ -45,6 +45,9 @@ import Slider from '../Home_Components/Slider';
 import Clouds_card_container from '../Home_Components/Clouds_card_container';
 import Footer from '../Home_Components/Footer';
 
+//import context
+import { AuthContext } from '../context/auth';
+
 
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
@@ -132,6 +135,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const MiniDrawer=()=>  {
   const theme = useTheme();
+  const [auth,setAuth]=React.useContext(AuthContext);
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -159,6 +163,12 @@ const MiniDrawer=()=>  {
     const handleCloseUserMenu = () => {
       setAnchorElUser(null);
     };
+  
+    //logout
+    const handleLogout=(e)=>{
+      console.log('logout')
+    }
+
 
   return (
    
@@ -213,9 +223,9 @@ const MiniDrawer=()=>  {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>handleLogout
                   <Typography sx={{ textAlign: 'center' }}>
-                  {setting=='Logout' && <Link to='/login' className="text-decoration-none text-dark">{setting} </Link>}
+                  {setting=='Logout' && <Link to='/login' className="text-decoration-none text-dark" onClick={handleLogout}>{setting} </Link>}
                   {setting=='Dashboard' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}
                   {setting=='Profile' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}
                   {setting=='Account' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}

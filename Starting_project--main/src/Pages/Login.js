@@ -5,12 +5,13 @@ import Navbar from '../Layout/Navbar';
 import '../styles/login.css'
 import logo from "../images/Logo.png"
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import {toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
 
 import GoogleIcon from '@mui/icons-material/Google';
 import { AuthContext } from '../context/auth';
 
-console.log(AuthContext)
+
 
 const Login= ()=>{
  const navigate = useNavigate();
@@ -33,6 +34,7 @@ const Login= ()=>{
         ...auth,
         user:res.data.user,
         token:res.data.token,
+        role:res.data.role,
       })
       localStorage.setItem('auth',JSON.stringify(res.data))
       navigate(location.state || '/');

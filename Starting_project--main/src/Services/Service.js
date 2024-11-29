@@ -45,6 +45,10 @@ import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 import Aws_Instance_Services from './Aws_Instance_Services'
 import Azure_Instance_Services from './Azure_Instance_Services'
 
+//import context
+import { AuthContext } from '../context/auth';
+import { LogContext } from '../context/Log';
+
 
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
@@ -131,6 +135,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function MiniDrawer() {
+
+  const [auth,setAuth] = React.useContext(AuthContext);
+  const [log,setLog] = React.useContext(LogContext);
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -162,7 +169,19 @@ export default function MiniDrawer() {
 
 
 //type of cloud from parameters
-let {cloud} = useParams()
+let {cloud} = useParams();
+
+//handle logout
+const handleLogout=()=>{
+  console.log('logout')
+  setAuth({
+    user:null,
+    token:'',
+    role:"",
+  })
+  localStorage.removeItem('auth');
+  setLog(true);
+}
 
   return (
    
@@ -219,7 +238,7 @@ let {cloud} = useParams()
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
                   <Typography sx={{ textAlign: 'center' }}>
-                  {setting=='Logout' && <Link to='/login' className="text-decoration-none text-dark">{setting} </Link>}
+                  {setting=='Logout' && <Link to='/login' className="text-decoration-none text-dark" onClick={handleLogout}>{setting} </Link>}
                   {setting=='Dashboard' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}
                   {setting=='Profile' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}
                   {setting=='Account' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}

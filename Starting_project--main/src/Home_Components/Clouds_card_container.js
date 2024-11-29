@@ -12,11 +12,24 @@ import alibaba_logo from "../images/alibaba-logo.jpg";
 import local_server from "../images/local_server.jpg";
 import { Link } from "react-router-dom";
 
+//import context
 import { AuthContext } from "../context/auth";
+
+//import toastify
+import {toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
 
 const Clouds_card_container = () => {
   const [auth,setAuth]=useContext(AuthContext);
-  console.log(auth)
+
+  const handleAdmin= ()=>{
+     if(auth.user ===null){
+      toast.error('Please Login')
+     }
+      if(auth.role === 'user'){
+        toast.error("Restricted To Admin Access")
+      }
+  }
 
  return (
     <div className="container mx-auto border-none">
@@ -30,9 +43,10 @@ const Clouds_card_container = () => {
           <div class="card-body">
             <h5 class="card-title h3 fw-bolder">Aws Services</h5>
             <p class="card-text">Explore the trending aws services.</p>
-            <Link to="/services/aws" class="btn btn-primary">
+            <Link to={(auth.role === 'admin' || auth.role ==='superadmin') ? '/services/aws' : '/'} class="btn btn-primary" onClick={handleAdmin}>
               Explore Services
             </Link>
+            
           </div>
         </div>
         <div class="card m-4" style={{ width: "18rem" }}>
@@ -44,7 +58,7 @@ const Clouds_card_container = () => {
           <div class="card-body">
             <h5 class="card-title h3 fw-bolder">Azure Services</h5>
             <p class="card-text">Explore the trending azure services.</p>
-            <Link to="/services/azure" class="btn btn-primary">
+            <Link to={(auth.role === 'admin' || auth.role ==='superadmin') ? '/services/azure' : '/'} class="btn btn-primary" onClick={handleAdmin}>
               Explore Services
             </Link>
           </div>
@@ -86,7 +100,7 @@ const Clouds_card_container = () => {
           <div class="card-body">
             <h5 class="card-title h3 fw-bolder">Local Server</h5>
             <p class="card-text">Explore Local Server</p>
-            <Link to="/local/server" class="btn btn-primary">
+            <Link to={(auth.role === 'admin' || auth.role==='superadmin') ? '/local/server' : '/'} class="btn btn-primary" onClick={handleAdmin}>
               Explore Server
             </Link>
           </div>

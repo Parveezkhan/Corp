@@ -1,0 +1,18 @@
+.container2{
+    margin-top:62px !important;
+    margin-left: 64px !important;
+}
+.search_form{
+    width:350px !important;
+}
+@media (max-width: 576px) { 
+    .search_form{
+        width: 150px !important;
+    }
+    .add_field{
+        width: 150px !important;
+    }
+ }
+ .add_field{
+    width: 250px !important;
+ }

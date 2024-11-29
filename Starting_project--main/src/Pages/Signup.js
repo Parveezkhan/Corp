@@ -4,7 +4,8 @@ import Navbar from '../Layout/Navbar';
 import '../styles/login.css'
 import logo from "../images/Logo.png"
 import axios from "axios";
-import toast from 'react-hot-toast';
+import {toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
 
 
 

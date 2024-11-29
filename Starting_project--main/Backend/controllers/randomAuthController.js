@@ -1,8 +1,13 @@
 const randomUser = require('../models/authModel');
+const awsEC2Model = require("../models/awsModel");
 const {hashPassword,comparePassword} = require('../helper/authHelper')
 
 //jsonwebtokens
 const JWT = require('jsonwebtoken');
+const aws= async (req,res)=>{
+   const data=await awsEC2Model.find({instanceName:'c5.24xlarge'});
+   res.send({data})
+}
 
 const randomRegisterController = async (req, res) => {
     try {
@@ -67,6 +72,7 @@ const randomRegisterController = async (req, res) => {
           message:'user not found'
         })
       }
+      console.log(user);
       const matchPassword = await comparePassword(password,user.password);
       
       if(!matchPassword){
@@ -86,6 +92,7 @@ const randomRegisterController = async (req, res) => {
           emailAddress:user.emailAddress,
         },
         token,
+        role:user.role,
       })
 
     }
@@ -103,4 +110,5 @@ const randomRegisterController = async (req, res) => {
 module.exports={
   randomRegisterController,
   randomLoginController,
+  aws,
 };

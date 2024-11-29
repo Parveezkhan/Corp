@@ -31,6 +31,14 @@ import CloudQueueIcon from '@mui/icons-material/CloudQueue';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 // import MenuIcon from '@mui/icons-material/Menu'
 
+//import toastify
+import {toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
+
+//import context
+import { LogContext } from '../context/Log';
+import { AuthContext } from '../context/auth';
+
 //import Components
 import Slider from '../Home_Components/Slider';
 import Clouds_card_container from '../Home_Components/Clouds_card_container';
@@ -118,7 +126,32 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function MiniDrawer() {
   const theme = useTheme();
+
+  //use logcontext
+  const [log,setLog] = React.useContext(LogContext);
+  const [auth,setAuth]=React.useContext(AuthContext);
+
   const [open, setOpen] = React.useState(false);
+
+  React.useEffect((
+    ()=>{
+     let local = JSON.parse (localStorage.getItem('auth'));
+     if(local === null){setLog(true);}
+     
+    }
+  ),[])
+  
+  //handle login-logout
+  const handleLog = ()=>{
+    localStorage.removeItem('auth')
+    setAuth({
+      ...auth,
+      user:null,
+      token:"",
+      role:"",
+    })
+    setLog(!log);
+  }
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -150,9 +183,9 @@ export default function MiniDrawer() {
           <Typography variant="h6" noWrap component="div" className='w-100 d-flex justify-content-between'>
             <img src={logo} alt='' className='img-fluid img'></img>
 
-            <Link to="/login" class="alert-link" className='text-end m-1 '>
-              <button type="button" class="btn btn-primary  " style={{ width: "100px" }}>
-                Login
+            <Link to={log === true ? '/login' : "/"} class="alert-link" className='text-end m-1 '>
+              <button type="button" class="btn btn-primary  " style={{ width: "100px" }} onClick={handleLog}>
+                {log === true ? 'Login' : 'Logout'}
               </button>
             </Link>
 

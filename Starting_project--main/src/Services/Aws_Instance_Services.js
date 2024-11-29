@@ -45,7 +45,7 @@ const MenuProps = {
 const Os = ["windows", "macos", "linux", "ubuntu"];
 
 //ec2 instance
-const ec2_instance = ["t2.micro-Free tier eligible	1 GiB Memory 1 vCPU	ESB only	Up to 5 Gigabit" , "t2.nano	0.5 GiB Memory	1 vCPU	ESB Only	Up to 5 Gigabit"];
+const ec2_instance = ["t2.micro-Free tier eligible	1 GiB Memory 1 vCPU	ESB only	Up to 5 Gigabit", "t2.nano	0.5 GiB Memory	1 vCPU	ESB Only	Up to 5 Gigabit"];
 //ec2 cpu
 const ec2_vcpu = ["1 vcpu", "2 vcpu", "4 vcpu"];
 //ec2 storage
@@ -91,9 +91,9 @@ const MultipleSelect = (props) => {
   const [instance, setInstance] = React.useState("");
   const [vcpu, setVcpu] = React.useState("");
   const [storage, setStorage] = React.useState("");
-  const [ram,setRam]=React.useState("");
+  const [ram, setRam] = React.useState("");
 
- //for running a map function
+  //for running a map function
   const keys = [...Array(10).keys()];
 
   //dropdown instances
@@ -127,34 +127,34 @@ const MultipleSelect = (props) => {
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-//save configurations
-const handleSaveConfigurations=(e)=>{
-  e.preventDefault();
-}
+  //save configurations
+  const handleSaveConfigurations = (e) => {
+    e.preventDefault();
+  }
 
 
- //type of instance assigning
- let Instance = [];
- let Vcpu = [];
- let Storage = [];
- 
- {
-  //  console.log(selectedOptions)
-   if (service === "EC2") {
-     Instance = ec2_instance;
-     Vcpu = ec2_vcpu;
-     Storage = ec2_storage;
-   } else if (service === "RDS") {
-     Instance = rds_instance;
-     Vcpu = rds_vcpu;
-     Storage = rds_storage;
-   }
- }
+  //type of instance assigning
+  let Instance = [];
+  let Vcpu = [];
+  let Storage = [];
+
+  {
+    //  console.log(selectedOptions)
+    if (service === "EC2") {
+      Instance = ec2_instance;
+      Vcpu = ec2_vcpu;
+      Storage = ec2_storage;
+    } else if (service === "RDS") {
+      Instance = rds_instance;
+      Vcpu = rds_vcpu;
+      Storage = rds_storage;
+    }
+  }
 
 
   return (
     <>
-      <div className="container py-3 mt-5 border-primary container1">
+      <div className="container py-3 mt-2 border-primary container1">
         <div className="logo text-center my-2 ">
           <img
             src={logo}
@@ -248,7 +248,7 @@ const handleSaveConfigurations=(e)=>{
                     <MenuItem
                       key={name}
                       value={name}
-                      // style={getStyles(name, personName, theme)}
+                    // style={getStyles(name, personName, theme)}
                     >
                       {name}
                     </MenuItem>
@@ -257,42 +257,8 @@ const handleSaveConfigurations=(e)=>{
               </FormControl>
             </div>
           </div>
-          <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
-            <div className="instance ">
-              <FormControl sx={{ m: 1, width: 300 }} >
-                <InputLabel id="demo-multiple-name-label">Instance</InputLabel>
-                <Select
-                  className="w-100"
-                  labelId="demo-multiple-name-label"
-                  id="demo-multiple-name"
-                  // multiple
-                  value={instance}
-                  onChange={(e) => {
-                    console.log(e)
-                    setInstance(e.target.value);
-                  }}
-                  input={<OutlinedInput label="Name" />}
-                  MenuProps={MenuProps}
-                >
-             
-                  {Instance.map((name) => (
-                      <MenuItem className="menuitem"
-                      key={name}
-                      value={name}
-                      // style={getStyles(name, personName, theme)}
-                    >
-                      {name}
-                    </MenuItem>
-                    
-                  ))} 
-                </Select>
-              </FormControl>
-            </div>
-          </div>
-        </div>
 
-        {/* row 2 */}
-         <div className="row  d-flex flex-row justify-content-center ">
+          {/* vcpu section */}
           <div className="col-12 col-sm-12 col-md-12 col-xl-4 ">
             <div className="instance w-100">
               <FormControl sx={{ m: 1, width: 300 }}>
@@ -313,7 +279,7 @@ const handleSaveConfigurations=(e)=>{
                     <MenuItem
                       key={name}
                       value={name}
-                      // style={getStyles(name, personName, theme)}
+                    // style={getStyles(name, personName, theme)}
                     >
                       {name}
                     </MenuItem>
@@ -322,6 +288,12 @@ const handleSaveConfigurations=(e)=>{
               </FormControl>
             </div>
           </div>
+
+        </div>
+
+        {/* row 2 */}
+        <div className="row  d-flex flex-row justify-content-center ">
+
 
           <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
             <div className="instance ">
@@ -340,54 +312,88 @@ const handleSaveConfigurations=(e)=>{
                   MenuProps={MenuProps}
                 >
                   {keys.map((key) => (
-                    key !==0 && <MenuItem
+                    key !== 0 && <MenuItem
                       key={key}
-                      value={key*50}
-                      // style={getStyles(name, personName, theme)}
+                      value={key * 50}
+                    // style={getStyles(name, personName, theme)}
                     >
-                      {key*50}
+                      {key * 50}
                     </MenuItem>
-                  
-                    
+
+
                   ))}
                 </Select>
               </FormControl>
             </div>
           </div>
-           <div className='col-12 col-ms-12 col-md-12 col-lg-4 '><div className='instance '>
+          <div className='col-12 col-ms-12 col-md-12 col-lg-4 '><div className='instance '>
             <FormControl sx={{ m: 1, width: 300 }} >
-        <InputLabel id="demo-multiple-name-label">Ram</InputLabel>
-        <Select
-          className='w-100'
-          labelId="demo-multiple-name-label"
-          id="demo-multiple-name"
-          // multiple
-          value={ram}
-          onChange={(e)=>setRam(e.target.value)}
-          input={<OutlinedInput label="Name" />}
-          MenuProps={MenuProps}
-        >
-          {keys.map((key) => (
-            key !==0 && 
-            <MenuItem
-              key={key}
-              value={key*2}
-              // style={getStyles(name, personName, theme)}
-            >
-              {key*2}
-            </MenuItem>
-          ))}
-        </Select></FormControl>
-        </div></div>
-        </div> 
-            
-       
-       {/* row 3 for submitting intance and its configurations */}
-       <div className='row  d-flex flex-row justify-content-center m-2 text-center'>
-        <form>
-          <button type="submit" className="btn btn-primary" style={{width:"250px"}} onSubmit={handleSaveConfigurations}>Submit</button>
-        </form>
-       </div>
+              <InputLabel id="demo-multiple-name-label">Ram</InputLabel>
+              <Select
+                className='w-100'
+                labelId="demo-multiple-name-label"
+                id="demo-multiple-name"
+                // multiple
+                value={ram}
+                onChange={(e) => setRam(e.target.value)}
+                input={<OutlinedInput label="Name" />}
+                MenuProps={MenuProps}
+              >
+                {keys.map((key) => (
+                  key !== 0 &&
+                  <MenuItem
+                    key={key}
+                    value={key * 2}
+                  // style={getStyles(name, personName, theme)}
+                  >
+                    {key * 2}
+                  </MenuItem>
+                ))}
+              </Select></FormControl>
+          </div></div>
+
+          {/* intance section */}
+          <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
+            <div className="instance ">
+              <FormControl sx={{ m: 1, width: 300 }} >
+                <InputLabel id="demo-multiple-name-label">Instance</InputLabel>
+                <Select
+                  className="w-100"
+                  labelId="demo-multiple-name-label"
+                  id="demo-multiple-name"
+                  // multiple
+                  value={instance}
+                  onChange={(e) => {
+                    console.log(e)
+                    setInstance(e.target.value);
+                  }}
+                  input={<OutlinedInput label="Name" />}
+                  MenuProps={MenuProps}
+                >
+
+                  {Instance.map((name) => (
+                    <MenuItem className="menuitem"
+                      key={name}
+                      value={name}
+                    // style={getStyles(name, personName, theme)}
+                    >
+                      {name}
+                    </MenuItem>
+
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+          </div>
+        </div>
+
+
+        {/* row 3 for submitting intance and its configurations */}
+        <div className='row  d-flex flex-row justify-content-center m-2 text-center'>
+          <form>
+            <button type="submit" className="btn btn-primary" style={{ width: "250px" }} onSubmit={handleSaveConfigurations}>Submit</button>
+          </form>
+        </div>
 
 
         {/* row -3  */}
@@ -466,6 +472,90 @@ const handleSaveConfigurations=(e)=>{
         </Select></FormControl>
         </div></div>
           </div> */}
+
+
+      </div>
+      <div className="container my-2 p-2">
+        <div className="row instance-calculate d-flex justify-content-center">
+          <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
+            <table className="table table-hover border border-4 border-primary rounded-3">
+              <thead>
+                <tr className="justify-content-center border text-center">
+                  <th scope="row" className="text-center ">Selected Services</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td >Aws</td>
+                  <td>
+                    <div className="user_modification d-flex flex-row justify-content-start text-start">
+                      <button type="button" className="btn btn-primary mx-1" style={{ width: '100px' }}>
+                        Edit
+                      </button>
+                      <button type="button" className="btn btn-danger mx-1" style={{ width: '100px' }}>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Aws</td>
+                  <td>
+                    <div className="user_modification d-flex flex-row justify-content-start text-start">
+                      <button type="button" className="btn btn-primary mx-1" style={{ width: '100px' }}>
+                        Edit
+                      </button>
+                      <button type="button" className="btn btn-danger mx-1" style={{ width: '100px' }}>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {/* selectin Number of Days,Hours,Users */}
+               <tr >
+                <td colSpan={2}>
+                  <div className="selection">
+                    <form>
+                      <div className="form-group">
+                        <label for="no_users">Enter No of Users</label>
+                        <input type="number" className="form-control" id='no_users' placeholder="Enter Users"/>
+                      </div>
+                      <div className="form-group">
+                        <label for="no_days">Enter No of days</label>
+                        <input type="number" className="form-control" id='no_days' placeholder="Enter Days"/>
+                      </div>
+                      <div className="form-group">
+                        <label for="no_hours">Enter No of Users</label>
+                        <input type="number" className="form-control" id='no_hours' placeholder="Enter Hours"/>
+                      </div>
+                      <div className="form-group p-2 text-center">
+                      <button type="submit" className="btn btn-primary mx-3" >
+                      Calculte Cost
+                    </button>
+                    <span style={{ fontsize: "22px", fontWeight: 'bold', fontFamily: 'inherit', }} className="my-1">Total Cost:100$</span>
+                      </div>
+                    </form>
+                  </div>
+                  </td>
+                </tr>  
+
+
+                {/* <tr>
+                  <td className="text-center">
+                    <button type="button" className="btn btn-primary mx-1" >
+                      Calculte Cost
+                    </button>
+                  </td>
+                  <td  ><span style={{ fontsize: "22px", fontWeight: 'bold', fontFamily: 'inherit', }} className="my-1">Total Cost:100$</span></td>
+                </tr> */}
+                <tr><td colSpan={2} className="text-center"><button type="button" className="btn btn-primary mx-1" style={{ width: '200px' }}>
+                  Confirm
+                </button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          {/* <div className="col-12 col-ms-12 col-md-12 col-lg-4 "></div> */}
+        </div>
       </div>
     </>
   );
