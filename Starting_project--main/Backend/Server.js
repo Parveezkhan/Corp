@@ -1,18 +1,18 @@
 require("dotenv").config();
 
+const express = require("express");
+const connectDB = require("./config/db");
+const cors = require("cors");
+const morgan = require("morgan");
+const path = require("path");
+const app = express();
 
-const express = require('express');
-const connectDB= require('./config/db')
-const cors = require('cors');
-const morgan=require('morgan');
-const path = require('path');
-const app=express();
- 
 //users routes
-const userRoute=require('./routes/authRoute.js')
+const userRoute = require("./routes/authRoute.js");
+const serviceRoute = require("./routes/serviceRoute.js");
 
 //database connection
-connectDB()
+connectDB();
 
 //middlewares
 app.use(cors());
@@ -22,18 +22,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "./Client")));
 
 //Users route
-app.use('/api/auth',userRoute);
+app.use("/api/auth", userRoute);
+
+//Service route
+app.use("/api/services", serviceRoute);
 
 //rest api
 app.use("*", function (req, res) {
-    res.send("Server Connected..");
-  });
-  
-
+  res.send("Server Connected..");
+});
 
 //PORT
 const PORT = 5000;
 
-app.listen(PORT,
-    console.log(`Server Started at ${PORT}`)
-)
+app.listen(PORT, console.log(`Server Started at ${PORT}`));

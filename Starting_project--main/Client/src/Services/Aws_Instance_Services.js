@@ -1,5 +1,5 @@
-
 import * as React from "react";
+import axios from "axios";
 import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -11,7 +11,7 @@ import logo from "../images/aws-logo.jpg";
 
 //import css
 import "../styles/check.css";
-import "../styles/aws.css"
+import "../styles/aws.css";
 
 import { Checkbox, ListItemIcon, ListItemText } from "@mui/material";
 import { CheckBox } from "@mui/icons-material";
@@ -45,7 +45,10 @@ const MenuProps = {
 const Os = ["windows", "macos", "linux", "ubuntu"];
 
 //ec2 instance
-const ec2_instance = ["t2.micro-Free tier eligible	1 GiB Memory 1 vCPU	ESB only	Up to 5 Gigabit", "t2.nano	0.5 GiB Memory	1 vCPU	ESB Only	Up to 5 Gigabit"];
+const ec2_instance = [
+  "t2.micro-Free tier eligible	1 GiB Memory 1 vCPU	ESB only	Up to 5 Gigabit",
+  "t2.nano	0.5 GiB Memory	1 vCPU	ESB Only	Up to 5 Gigabit",
+];
 //ec2 cpu
 const ec2_vcpu = ["1 vcpu", "2 vcpu", "4 vcpu"];
 //ec2 storage
@@ -86,7 +89,7 @@ const MultipleSelect = (props) => {
   //props
   let { cloud } = props.cloud;
 
-  const [service, setService] = React.useState('');
+  const [service, setService] = React.useState("");
   const [os, setOs] = React.useState("");
   const [instance, setInstance] = React.useState("");
   const [vcpu, setVcpu] = React.useState("");
@@ -116,7 +119,7 @@ const MultipleSelect = (props) => {
   const handleCheckboxChange = (e, value) => {
     if (e.target.checked) {
       setSelectedOptions([...selectedOptions, value]);
-      setService(value)
+      setService(value);
     } else {
       setSelectedOptions(selectedOptions.filter((item) => item !== value));
     }
@@ -128,10 +131,26 @@ const MultipleSelect = (props) => {
   );
 
   //save configurations
-  const handleSaveConfigurations = (e) => {
+  const handleSaveConfigurations = async (e) => {
     e.preventDefault();
-  }
+    //call api
+    try {
+      const user = await axios.post("/api/auth/");
 
+      const res = await axios.get(
+        "http://localhost:5000/api/services/get-awsec2",
+        {
+          service,
+          os,
+          vcpu,
+          storage,
+          ram,
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   //type of instance assigning
   let Instance = [];
@@ -150,7 +169,6 @@ const MultipleSelect = (props) => {
       Storage = rds_storage;
     }
   }
-
 
   return (
     <>
@@ -248,7 +266,7 @@ const MultipleSelect = (props) => {
                     <MenuItem
                       key={name}
                       value={name}
-                    // style={getStyles(name, personName, theme)}
+                      // style={getStyles(name, personName, theme)}
                     >
                       {name}
                     </MenuItem>
@@ -279,7 +297,7 @@ const MultipleSelect = (props) => {
                     <MenuItem
                       key={name}
                       value={name}
-                    // style={getStyles(name, personName, theme)}
+                      // style={getStyles(name, personName, theme)}
                     >
                       {name}
                     </MenuItem>
@@ -288,13 +306,10 @@ const MultipleSelect = (props) => {
               </FormControl>
             </div>
           </div>
-
         </div>
 
         {/* row 2 */}
         <div className="row  d-flex flex-row justify-content-center ">
-
-
           <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
             <div className="instance ">
               <FormControl sx={{ m: 1, width: 300 }}>
@@ -311,51 +326,57 @@ const MultipleSelect = (props) => {
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-                  {keys.map((key) => (
-                    key !== 0 && <MenuItem
-                      key={key}
-                      value={key * 50}
-                    // style={getStyles(name, personName, theme)}
-                    >
-                      {key * 50}
-                    </MenuItem>
-
-
-                  ))}
+                  {keys.map(
+                    (key) =>
+                      key !== 0 && (
+                        <MenuItem
+                          key={key}
+                          value={key * 50}
+                          // style={getStyles(name, personName, theme)}
+                        >
+                          {key * 50}
+                        </MenuItem>
+                      )
+                  )}
                 </Select>
               </FormControl>
             </div>
           </div>
-          <div className='col-12 col-ms-12 col-md-12 col-lg-4 '><div className='instance '>
-            <FormControl sx={{ m: 1, width: 300 }} >
-              <InputLabel id="demo-multiple-name-label">Ram</InputLabel>
-              <Select
-                className='w-100'
-                labelId="demo-multiple-name-label"
-                id="demo-multiple-name"
-                // multiple
-                value={ram}
-                onChange={(e) => setRam(e.target.value)}
-                input={<OutlinedInput label="Name" />}
-                MenuProps={MenuProps}
-              >
-                {keys.map((key) => (
-                  key !== 0 &&
-                  <MenuItem
-                    key={key}
-                    value={key * 2}
-                  // style={getStyles(name, personName, theme)}
-                  >
-                    {key * 2}
-                  </MenuItem>
-                ))}
-              </Select></FormControl>
-          </div></div>
+          <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
+            <div className="instance ">
+              <FormControl sx={{ m: 1, width: 300 }}>
+                <InputLabel id="demo-multiple-name-label">Ram</InputLabel>
+                <Select
+                  className="w-100"
+                  labelId="demo-multiple-name-label"
+                  id="demo-multiple-name"
+                  // multiple
+                  value={ram}
+                  onChange={(e) => setRam(e.target.value)}
+                  input={<OutlinedInput label="Name" />}
+                  MenuProps={MenuProps}
+                >
+                  {keys.map(
+                    (key) =>
+                      key !== 0 && (
+                        <MenuItem
+                          key={key}
+                          value={key * 2}
+                          // style={getStyles(name, personName, theme)}
+                        >
+                          {key * 2}
+                        </MenuItem>
+                      )
+                  )}
+                </Select>
+              </FormControl>
+            </div>
+          </div>
 
           {/* intance section */}
           <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
             <div className="instance ">
-              <FormControl sx={{ m: 1, width: 300 }} >
+              <FormControl sx={{ m: 1, width: 300 }}>
                 <InputLabel id="demo-multiple-name-label">Instance</InputLabel>
                 <Select
                   className="w-100"
@@ -364,22 +385,21 @@ const MultipleSelect = (props) => {
                   // multiple
                   value={instance}
                   onChange={(e) => {
-                    console.log(e)
+                    console.log(e);
                     setInstance(e.target.value);
                   }}
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-
                   {Instance.map((name) => (
-                    <MenuItem className="menuitem"
+                    <MenuItem
+                      className="menuitem"
                       key={name}
                       value={name}
-                    // style={getStyles(name, personName, theme)}
+                      // style={getStyles(name, personName, theme)}
                     >
                       {name}
                     </MenuItem>
-
                   ))}
                 </Select>
               </FormControl>
@@ -387,14 +407,19 @@ const MultipleSelect = (props) => {
           </div>
         </div>
 
-
         {/* row 3 for submitting intance and its configurations */}
-        <div className='row  d-flex flex-row justify-content-center m-2 text-center'>
+        <div className="row  d-flex flex-row justify-content-center m-2 text-center">
           <form>
-            <button type="submit" className="btn btn-primary" style={{ width: "250px" }} onSubmit={handleSaveConfigurations}>Submit</button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={{ width: "250px" }}
+              onSubmit={handleSaveConfigurations}
+            >
+              Submit
+            </button>
           </form>
         </div>
-
 
         {/* row -3  */}
         {/* <div className='row  d-flex flex-row justify-content-center '>
@@ -472,8 +497,6 @@ const MultipleSelect = (props) => {
         </Select></FormControl>
         </div></div>
           </div> */}
-
-
       </div>
       <div className="container my-2 p-2">
         <div className="row instance-calculate d-flex justify-content-center">
@@ -481,18 +504,28 @@ const MultipleSelect = (props) => {
             <table className="table table-hover border border-4 border-primary rounded-3">
               <thead>
                 <tr className="justify-content-center border text-center">
-                  <th scope="row" className="text-center ">Selected Services</th>
+                  <th scope="row" className="text-center ">
+                    Selected Services
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td >Aws</td>
+                  <td>Aws</td>
                   <td>
                     <div className="user_modification d-flex flex-row justify-content-start text-start">
-                      <button type="button" className="btn btn-primary mx-1" style={{ width: '100px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-primary mx-1"
+                        style={{ width: "100px" }}
+                      >
                         Edit
                       </button>
-                      <button type="button" className="btn btn-danger mx-1" style={{ width: '100px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-danger mx-1"
+                        style={{ width: "100px" }}
+                      >
                         Delete
                       </button>
                     </div>
@@ -502,43 +535,77 @@ const MultipleSelect = (props) => {
                   <td>Aws</td>
                   <td>
                     <div className="user_modification d-flex flex-row justify-content-start text-start">
-                      <button type="button" className="btn btn-primary mx-1" style={{ width: '100px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-primary mx-1"
+                        style={{ width: "100px" }}
+                      >
                         Edit
                       </button>
-                      <button type="button" className="btn btn-danger mx-1" style={{ width: '100px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-danger mx-1"
+                        style={{ width: "100px" }}
+                      >
                         Delete
                       </button>
                     </div>
                   </td>
                 </tr>
                 {/* selectin Number of Days,Hours,Users */}
-               <tr >
-                <td colSpan={2}>
-                  <div className="selection">
-                    <form>
-                      <div className="form-group">
-                        <label for="no_users">Enter No of Users</label>
-                        <input type="number" className="form-control" id='no_users' placeholder="Enter Users"/>
-                      </div>
-                      <div className="form-group">
-                        <label for="no_days">Enter No of days</label>
-                        <input type="number" className="form-control" id='no_days' placeholder="Enter Days"/>
-                      </div>
-                      <div className="form-group">
-                        <label for="no_hours">Enter No of Users</label>
-                        <input type="number" className="form-control" id='no_hours' placeholder="Enter Hours"/>
-                      </div>
-                      <div className="form-group p-2 text-center">
-                      <button type="submit" className="btn btn-primary mx-3" >
-                      Calculte Cost
-                    </button>
-                    <span style={{ fontsize: "22px", fontWeight: 'bold', fontFamily: 'inherit', }} className="my-1">Total Cost:100$</span>
-                      </div>
-                    </form>
-                  </div>
+                <tr>
+                  <td colSpan={2}>
+                    <div className="selection">
+                      <form>
+                        <div className="form-group">
+                          <label for="no_users">Enter No of Users</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            id="no_users"
+                            placeholder="Enter Users"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label for="no_days">Enter No of days</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            id="no_days"
+                            placeholder="Enter Days"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label for="no_hours">Enter No of Users</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            id="no_hours"
+                            placeholder="Enter Hours"
+                          />
+                        </div>
+                        <div className="form-group p-2 text-center">
+                          <button
+                            type="submit"
+                            className="btn btn-primary mx-3"
+                          >
+                            Calculte Cost
+                          </button>
+                          <span
+                            style={{
+                              fontsize: "22px",
+                              fontWeight: "bold",
+                              fontFamily: "inherit",
+                            }}
+                            className="my-1"
+                          >
+                            Total Cost:100$
+                          </span>
+                        </div>
+                      </form>
+                    </div>
                   </td>
-                </tr>  
-
+                </tr>
 
                 {/* <tr>
                   <td className="text-center">
@@ -548,9 +615,17 @@ const MultipleSelect = (props) => {
                   </td>
                   <td  ><span style={{ fontsize: "22px", fontWeight: 'bold', fontFamily: 'inherit', }} className="my-1">Total Cost:100$</span></td>
                 </tr> */}
-                <tr><td colSpan={2} className="text-center"><button type="button" className="btn btn-primary mx-1" style={{ width: '200px' }}>
-                  Confirm
-                </button></td></tr>
+                <tr>
+                  <td colSpan={2} className="text-center">
+                    <button
+                      type="button"
+                      className="btn btn-primary mx-1"
+                      style={{ width: "200px" }}
+                    >
+                      Confirm
+                    </button>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
