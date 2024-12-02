@@ -5,6 +5,7 @@ const connectDB = require("./config/db");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
+const bodyParser = require('body-parser')
 const app = express();
 
 //users routes
@@ -19,6 +20,9 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 app.use(express.static(path.join(__dirname, "./Client")));
 
 //Users route

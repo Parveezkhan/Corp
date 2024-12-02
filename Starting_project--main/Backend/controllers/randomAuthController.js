@@ -99,7 +99,34 @@ const randomLoginController = async (req, res) => {
   }
 };
 
+const getUser = async(req,res)=>{
+  try{
+    const {emailAddress} = req.body;
+    if(!emailAddress){
+      res.send({message:"Required Email.."})
+    }
+    
+    const user = await randomUser.findOne({emailAddress});
+
+    res.status(201).send({
+      success:true,
+      message:"User found",
+      user,
+    })
+  }
+  catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: "false",
+      message: "User not found",
+      error,
+    });
+  }
+  }
+
+
 module.exports = {
   randomRegisterController,
   randomLoginController,
+  getUser,
 };

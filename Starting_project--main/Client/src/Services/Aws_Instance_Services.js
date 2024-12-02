@@ -8,6 +8,9 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import logo from "../images/aws-logo.jpg";
+import {toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
+
 
 //import css
 import "../styles/check.css";
@@ -95,6 +98,50 @@ const MultipleSelect = (props) => {
   const [vcpu, setVcpu] = React.useState("");
   const [storage, setStorage] = React.useState("");
   const [ram, setRam] = React.useState("");
+  
+  const [memory,setMemory]=useState([]);
+  const [VCPU , setVCPU] = useState([]);
+    //type of instance assigning
+    // let Instance = "";
+    const [Instance,setINstance] = useState('');
+    let Vcpu = [];
+    let Storage = [];
+  React.useEffect( ()=>{
+    const get=async ()=>{
+      const awsec2 = await axios.get("http://localhost:5000/api/services/get-awsec2")
+      setMemory(awsec2.data.getInstance)
+      setVCPU(awsec2.data.getInstance)
+
+     
+    }
+    get();
+  },[]);
+
+  React.useEffect(()=>{
+    const getinstance=async ()=>{
+
+    if(vcpu !=='' && storage !==''){
+      const singleInstance = await axios.post("http://localhost:5000/api/services/get-singleec2",
+        { 
+          memory:storage,
+          vcpu:vcpu,
+        }
+      );
+      if(singleInstance.data.success){
+        let data = singleInstance.data.getSingle.instanceName;
+        setINstance(data);
+      }
+      else{
+        toast.error(singleInstance.data.message)
+      }
+     
+    }
+    
+    }
+    
+  getinstance();
+  
+},[storage,vcpu]);
 
   //for running a map function
   const keys = [...Array(10).keys()];
@@ -130,45 +177,83 @@ const MultipleSelect = (props) => {
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+ 
+  const user = localStorage.getItem('auth');
+  const userParsed = JSON.parse(user);
+  const userEmail = userParsed.user.emailAddress;
+ 
+
+  //saving catalogs
+  const [catalog,setCatalog] = useState([]);
+
   //save configurations
   const handleSaveConfigurations = async (e) => {
     e.preventDefault();
     //call api
     try {
-      const user = await axios.post("/api/auth/");
-
-      const res = await axios.get(
-        "http://localhost:5000/api/services/get-awsec2",
+      const user = await axios.post("http://localhost:5000/api/auth/get-user",{
+        emailAddress:userEmail,
+      })
+      console.log(user.data.user._id)
+      const res = await axios.post(
+        "http://localhost:5000/api/services/awsconfig",
         {
           service,
           os,
           vcpu,
           storage,
           ram,
+          userId:user.data.user._id,
         }
       );
     } catch (error) {
       console.log(error);
     }
+    setCatalog([...catalog,{service,os,vcpu,storage,ram,Instance}])
+    setService('');
+    setOs('');
+    setVcpu('');
+    setStorage('');
+    setRam('');
+    setINstance('');
+
+    if(edit === true){
+      setEdit(false);
+    }
   };
 
-  //type of instance assigning
-  let Instance = [];
-  let Vcpu = [];
-  let Storage = [];
 
-  {
-    //  console.log(selectedOptions)
-    if (service === "EC2") {
-      Instance = ec2_instance;
-      Vcpu = ec2_vcpu;
-      Storage = ec2_storage;
-    } else if (service === "RDS") {
-      Instance = rds_instance;
-      Vcpu = rds_vcpu;
-      Storage = rds_storage;
-    }
+  // {
+  //   //  console.log(selectedOptions)
+  //   if (service === "EC2") {
+  //     Instance = ec2_instance;
+  //     Vcpu = ec2_vcpu;
+  //     Storage = ec2_storage;
+  //   } else if (service === "RDS") {
+  //     Instance = rds_instance;
+  //     Vcpu = rds_vcpu;
+  //     Storage = rds_storage;
+  //   }
+  // }
+
+  const handleDelete=(e,instance)=>{
+    e.preventDefault();
+    setCatalog((prevItems)=>prevItems.filter(item=>item.Instance !==instance))
+
   }
+  const [edit,setEdit]=useState(false);
+  const handleEdit=(e,instance)=>{
+    e.preventDefault();
+    setEdit(true);
+    setService(instance.service);
+    setOs(instance.os);
+    setVcpu(instance.vcpu);
+    setStorage(instance.storage);
+    setRam(instance.ram);
+    setINstance(instance.Instance);
+
+  }
+
 
   return (
     <>
@@ -293,13 +378,13 @@ const MultipleSelect = (props) => {
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-                  {Vcpu.map((name) => (
+                  {VCPU.map((vcpu) => (
                     <MenuItem
-                      key={name}
-                      value={name}
+                      key={vcpu._id}
+                      value={vcpu.vcpu}
                       // style={getStyles(name, personName, theme)}
                     >
-                      {name}
+                      {vcpu.vcpu}
                     </MenuItem>
                   ))}
                 </Select>
@@ -326,15 +411,15 @@ const MultipleSelect = (props) => {
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-                  {keys.map(
-                    (key) =>
-                      key !== 0 && (
+                  {memory.map(
+                    (memory) =>
+                       (
                         <MenuItem
-                          key={key}
-                          value={key * 50}
+                          key={memory._id}
+                          value={memory.memory}
                           // style={getStyles(name, personName, theme)}
                         >
-                          {key * 50}
+                          {memory.memory}
                         </MenuItem>
                       )
                   )}
@@ -385,22 +470,21 @@ const MultipleSelect = (props) => {
                   // multiple
                   value={instance}
                   onChange={(e) => {
-                    console.log(e);
                     setInstance(e.target.value);
                   }}
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-                  {Instance.map((name) => (
+                  {/* {Instance.map((name) => ( */}
                     <MenuItem
                       className="menuitem"
-                      key={name}
-                      value={name}
+                      // key={name}
+                      value={Instance}
                       // style={getStyles(name, personName, theme)}
                     >
-                      {name}
+                      {Instance}
                     </MenuItem>
-                  ))}
+                  {/* ))} */}
                 </Select>
               </FormControl>
             </div>
@@ -409,14 +493,14 @@ const MultipleSelect = (props) => {
 
         {/* row 3 for submitting intance and its configurations */}
         <div className="row  d-flex flex-row justify-content-center m-2 text-center">
-          <form>
+          <form onSubmit={handleSaveConfigurations}> 
             <button
               type="submit"
               className="btn btn-primary"
               style={{ width: "250px" }}
-              onSubmit={handleSaveConfigurations}
+              
             >
-              Submit
+              {edit === false ? 'Submit' : 'Update'}
             </button>
           </form>
         </div>
@@ -510,8 +594,34 @@ const MultipleSelect = (props) => {
                 </tr>
               </thead>
               <tbody>
+                {catalog.map((instance)=>(
+                    <tr>
+                    <td>Aws({instance.Instance})</td>
+                    <td>
+                      <div className="user_modification d-flex flex-row justify-content-start text-start">
+                        <button
+                          type="button"
+                          className="btn btn-primary mx-1"
+                          style={{ width: "100px" }}
+                          onClick={(e)=>handleEdit(e,instance)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-danger mx-1"
+                          style={{ width: "100px" }}
+                          onClick={(e)=>handleDelete(e,instance.Instance)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                
                 <tr>
-                  <td>Aws</td>
+                  {/* <td>Aws</td>
                   <td>
                     <div className="user_modification d-flex flex-row justify-content-start text-start">
                       <button
@@ -529,28 +639,7 @@ const MultipleSelect = (props) => {
                         Delete
                       </button>
                     </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Aws</td>
-                  <td>
-                    <div className="user_modification d-flex flex-row justify-content-start text-start">
-                      <button
-                        type="button"
-                        className="btn btn-primary mx-1"
-                        style={{ width: "100px" }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-danger mx-1"
-                        style={{ width: "100px" }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+                  </td> */}
                 </tr>
                 {/* selectin Number of Days,Hours,Users */}
                 <tr>

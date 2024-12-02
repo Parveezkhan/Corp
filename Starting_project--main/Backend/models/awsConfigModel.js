@@ -25,7 +25,7 @@ const awsConfigSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "randomUser",
   },
-});
+},{timestamps:true});
 
 const awsConfigModel = mongoose.model("awsConfigSchema", awsConfigSchema);
 
