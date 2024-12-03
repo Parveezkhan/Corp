@@ -7,10 +7,13 @@ const morgan = require("morgan");
 const path = require("path");
 const bodyParser = require('body-parser')
 const app = express();
+const {PythonShell} =require('python-shell');
 
 //users routes
 const userRoute = require("./routes/authRoute.js");
 const serviceRoute = require("./routes/serviceRoute.js");
+
+
 
 //database connection
 connectDB();
@@ -35,6 +38,11 @@ app.use("/api/services", serviceRoute);
 app.use("*", function (req, res) {
   res.send("Server Connected..");
 });
+
+// PythonShell.run('aws_service_selector.py',null).then(message=>{
+//   console.log(message);
+// })
+
 
 //PORT
 const PORT = 5000;

@@ -194,7 +194,6 @@ const MultipleSelect = (props) => {
       const user = await axios.post("http://localhost:5000/api/auth/get-user",{
         emailAddress:userEmail,
       })
-      console.log(user.data.user._id)
       const res = await axios.post(
         "http://localhost:5000/api/services/awsconfig",
         {
@@ -236,9 +235,30 @@ const MultipleSelect = (props) => {
   //   }
   // }
 
-  const handleDelete=(e,instance)=>{
+  const handleDelete=async(e,instance)=>{
     e.preventDefault();
-    setCatalog((prevItems)=>prevItems.filter(item=>item.Instance !==instance))
+    setCatalog((prevItems)=>prevItems.filter(item=>item.Instance !==instance.Instance))
+    const {service,os,vcpu,storage,ram,userId} = instance;
+
+    try{
+      const user = await axios.post("http://localhost:5000/api/auth/get-user",{
+        emailAddress:userEmail,
+      });
+      const res = await axios.post('http://localhost:5000/api/services/awsconfig_delete',
+        {
+          service,
+          os,
+          vcpu,
+          storage,
+          ram,
+          userId:user.data.user._id,
+
+        }
+      )
+    }
+    catch(error){
+      console.log(error)
+    }
 
   }
   const [edit,setEdit]=useState(false);
@@ -251,7 +271,7 @@ const MultipleSelect = (props) => {
     setStorage(instance.storage);
     setRam(instance.ram);
     setINstance(instance.Instance);
-
+    
   }
 
 
@@ -611,7 +631,7 @@ const MultipleSelect = (props) => {
                           type="button"
                           className="btn btn-danger mx-1"
                           style={{ width: "100px" }}
-                          onClick={(e)=>handleDelete(e,instance.Instance)}
+                          onClick={(e)=>handleDelete(e,instance)}
                         >
                           Delete
                         </button>
