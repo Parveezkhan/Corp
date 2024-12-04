@@ -98,7 +98,8 @@ def main():
     for idx, service in enumerate(SUPPORTED_SERVICES, start=1):
         print(f"{idx}. {service}")
     print("\nEnter the numbers of the services to deploy (comma-separated, e.g., 1,2,5):")
-    services_input = input("Services: ").strip()
+    # services_input = input("Services: ").strip()
+    services_input = '1'.strip()
     
     try:
         selected_indices = [int(i.strip()) - 1 for i in services_input.split(",")]
@@ -116,9 +117,13 @@ def main():
     # duration_hours = int(input("Enter the number of hours to run services: "))
 
     #from node js
-    iam_user_count = sys.argv[2]
-    duration_days = sys.argv[3]
-    duration_hours = sys.argv[4]
+    # iam_user_count = int(sys.argv[2])
+    # duration_days = int(sys.argv[3])
+    # duration_hours =int( sys.argv[4])
+
+    iam_user_count = 1
+    duration_days = 1
+    duration_hours =1
 
     account_id = get_account_id()
     if not account_id:

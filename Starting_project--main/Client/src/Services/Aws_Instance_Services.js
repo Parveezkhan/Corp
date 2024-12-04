@@ -92,12 +92,18 @@ const MultipleSelect = (props) => {
   //props
   let { cloud } = props.cloud;
 
-  const [service, setService] = React.useState("");
+  const [service, setService] = React.useState([]);
   const [os, setOs] = React.useState("");
   const [instance, setInstance] = React.useState("");
   const [vcpu, setVcpu] = React.useState("");
   const [storage, setStorage] = React.useState("");
   const [ram, setRam] = React.useState("");
+
+  //collect data
+  const [users,setUsers] = useState();
+  const [hours , setHours] = useState();
+  const [days,setDays] = useState();
+  const [totalcost,setTotalcost] = useState();
   
   const [memory,setMemory]=useState([]);
   const [VCPU , setVCPU] = useState([]);
@@ -148,12 +154,12 @@ const MultipleSelect = (props) => {
 
   //dropdown instances
   const options = [
-    { label: "EC2", value: "EC2" },
-    { label: "RDS", value: "RDS" },
+    { label: "EC2", value:"EC2"  },
+    { label: "RDS", value:"RDS" },
     { label: "Dynamo DB", value: "Dynamo DB" },
     { label: "IAM", value: "IAM" },
-    { label: "Sequirty hub", value: "Sequirty hub" },
-    { label: "Elastic cache", value: "Elastic cache" },
+    { label: "Sequirty hub", value:"Sequirty hub"},
+    { label: "Elastic cache", value:"Elastic cache" },
     { label: "Lambda", value: "Lambda" },
     { label: "Elastic benstalk", value: "Elastic benstalk" },
   ];
@@ -171,7 +177,7 @@ const MultipleSelect = (props) => {
       setSelectedOptions(selectedOptions.filter((item) => item !== value));
     }
   };
-
+  console.log(service)
   // Filter options based on the search query
   const filteredOptions = options.filter((option) =>
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
@@ -185,6 +191,7 @@ const MultipleSelect = (props) => {
 
   //saving catalogs
   const [catalog,setCatalog] = useState([]);
+  const [service_list,setService_list] = useState([]);
 
   //save configurations
   const handleSaveConfigurations = async (e) => {
@@ -194,31 +201,62 @@ const MultipleSelect = (props) => {
       const user = await axios.post("http://localhost:5000/api/auth/get-user",{
         emailAddress:userEmail,
       })
-      const res = await axios.post(
-        "http://localhost:5000/api/services/awsconfig",
-        {
-          service,
-          os,
-          vcpu,
-          storage,
-          ram,
-          userId:user.data.user._id,
-        }
-      );
-    } catch (error) {
-      console.log(error);
-    }
-    setCatalog([...catalog,{service,os,vcpu,storage,ram,Instance}])
+      if(edit === true){
+        const update_document = await axios.post(`http://localhost:5000/api/services/awsEc2config_update/${edit_id}`,{
+        service,
+        os,
+        vcpu,
+        storage,
+        ram,
+        userId:user.data.user._id,
+        })
+        
+        let id = edit_id
+        let updated_catalog = catalog.map(item=> item.id === id ? {...item,service,os,vcpu,storage,ram,Instance,id} : item);
+        setCatalog(updated_catalog);
+        setService_list(updated_catalog.service);
+        // setService('');
+        setOs('');
+        setVcpu('');
+        setStorage('');
+        setRam('');
+        setINstance('');
+        setEdit(!edit);
+      }
+      else if( edit === false){
+        const res = await axios.post(
+          "http://localhost:5000/api/services/awsconfig",
+          {
+            service,
+            os,
+            vcpu,
+            storage,
+            ram,
+            userId:user.data.user._id,
+          }
+        );
+        let id = res.data.config._id;
+        setCatalog([...catalog,{service,os,vcpu,storage,ram,Instance,id}])
+        service_list(service);
+      }
     setService('');
     setOs('');
     setVcpu('');
     setStorage('');
     setRam('');
     setINstance('');
-
-    if(edit === true){
-      setEdit(false);
+     
+    } 
+    
+    catch (error) {
+      console.log(error);
     }
+    // setCatalog([...catalog,{service,os,vcpu,storage,ram,Instance}])
+    
+
+    // if(edit === true){
+    //   setEdit(false);
+    // }
   };
 
 
@@ -237,24 +275,15 @@ const MultipleSelect = (props) => {
 
   const handleDelete=async(e,instance)=>{
     e.preventDefault();
-    setCatalog((prevItems)=>prevItems.filter(item=>item.Instance !==instance.Instance))
-    const {service,os,vcpu,storage,ram,userId} = instance;
+    const {service,os,vcpu,storage,ram,userId,id} = instance;
+    setCatalog((prevItems)=>prevItems.filter(item=>item.id !==instance.id))
+    
 
     try{
       const user = await axios.post("http://localhost:5000/api/auth/get-user",{
         emailAddress:userEmail,
       });
-      const res = await axios.post('http://localhost:5000/api/services/awsconfig_delete',
-        {
-          service,
-          os,
-          vcpu,
-          storage,
-          ram,
-          userId:user.data.user._id,
-
-        }
-      )
+      const res = await axios.delete(`http://localhost:5000/api/services/awsconfig_delete/${id}`)
     }
     catch(error){
       console.log(error)
@@ -262,7 +291,8 @@ const MultipleSelect = (props) => {
 
   }
   const [edit,setEdit]=useState(false);
-  const handleEdit=(e,instance)=>{
+  const [edit_id,setEdit_id] = useState('');
+  const handleEdit=async (e,instance)=>{
     e.preventDefault();
     setEdit(true);
     setService(instance.service);
@@ -271,8 +301,31 @@ const MultipleSelect = (props) => {
     setStorage(instance.storage);
     setRam(instance.ram);
     setINstance(instance.Instance);
+    setEdit_id(instance.id)
     
-  }
+ }
+
+ const calculateCost=(e)=>{
+      e.preventDefault();
+      console.log(service)
+ }
+
+ const handleConfirm=async (e)=>{
+      e.preventDefault();
+      try{
+        const data = await axios.post('http://localhost:5000/api/services/python/aws',{
+        service,
+        users,
+        hours,
+        days,
+      })}
+      catch(error){
+        console.log(error)
+      }
+      setUsers('');
+      setHours('');
+      setDays('');
+ }
 
 
   return (
@@ -665,14 +718,16 @@ const MultipleSelect = (props) => {
                 <tr>
                   <td colSpan={2}>
                     <div className="selection">
-                      <form>
+                      {/* <form> */}
                         <div className="form-group">
-                          <label for="no_users">Enter No of Users</label>
+                          <label for="no_users">Enter No of IAM Users</label>
                           <input
                             type="number"
                             className="form-control"
                             id="no_users"
                             placeholder="Enter Users"
+                            value={users}
+                            onChange={(e)=>setUsers(e.target.value)}
                           />
                         </div>
                         <div className="form-group">
@@ -682,21 +737,26 @@ const MultipleSelect = (props) => {
                             className="form-control"
                             id="no_days"
                             placeholder="Enter Days"
+                            value={days}
+                            onChange={(e)=>setDays(e.target.value)}
                           />
                         </div>
                         <div className="form-group">
-                          <label for="no_hours">Enter No of Users</label>
+                          <label for="no_hours">Enter No of Hours</label>
                           <input
                             type="number"
                             className="form-control"
                             id="no_hours"
                             placeholder="Enter Hours"
+                            value={hours}
+                            onChange={(e)=>setHours(e.target.value)}
                           />
                         </div>
                         <div className="form-group p-2 text-center">
                           <button
-                            type="submit"
+                            type="button"
                             className="btn btn-primary mx-3"
+                            onClick={calculateCost}
                           >
                             Calculte Cost
                           </button>
@@ -711,7 +771,7 @@ const MultipleSelect = (props) => {
                             Total Cost:100$
                           </span>
                         </div>
-                      </form>
+                      {/* </form> */}
                     </div>
                   </td>
                 </tr>
@@ -730,6 +790,7 @@ const MultipleSelect = (props) => {
                       type="button"
                       className="btn btn-primary mx-1"
                       style={{ width: "200px" }}
+                      onClick={handleConfirm}
                     >
                       Confirm
                     </button>
