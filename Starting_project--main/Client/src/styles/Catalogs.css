@@ -1,0 +1,116 @@
+/* App.css */ 
+
+.app { 
+    font-family: Arial, sans-serif; 
+    text-align: center; 
+    padding: 20px; 
+    /* display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: ; */
+  } 
+  
+  .search-bar { 
+    margin-bottom: 20px; 
+  } 
+  
+  
+  .search-bar input { 
+    padding: 10px; 
+    font-size: 16px; 
+    width: 80%; 
+    max-width: 400px; 
+  } 
+  
+  
+  .slider-toggle { 
+    padding: 10px 20px; 
+    background-color: #007bff; 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    margin-bottom: 20px; 
+    font-size: 16px; 
+    transition: background-color 0.3s; 
+  } 
+  
+   
+  .slider-toggle:hover { 
+    background-color: #0056b3; 
+  } 
+  
+  
+  .slider-container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 20px; 
+    overflow-x: hidden; 
+    justify-content: center;
+    transition: transform 0.3s ease-in-out; 
+    padding: 10px; 
+    transform: translateX(0); 
+  } 
+  
+  .slider-container.closed { 
+    transform: translateX(100%); 
+  } 
+   
+  .slider-container.open { 
+    transform: translateX(0); 
+  } 
+  
+  /* it is used to devide the cards into 3 rows/ */
+  .cardd{ 
+    color: black; 
+    font-family: 'poppins,sans-serif';
+    padding: 1px; 
+    margin: 0 10px; 
+    border-radius: 8px; 
+    width: 30%; 
+    box-shadow:  2px 4px 4px rgb(192, 189, 189); 
+    transition: transform 0.3s; 
+  } 
+  .cardd{
+    background-color: #f2f3f4 !important;
+  }
+  /* .cardd img{
+    width: 170px !important;
+    height: 200px !important;
+    margin: auto !important;
+  } */
+ 
+  .card:hover { 
+    transform: scale(1.05); 
+  } 
+  .cardd span{
+    font-size: 22px !important ;
+    font-weight: bold !important;
+  }
+  
+  /* Responsive design */ 
+  @media (max-width: 768px) { 
+    .slider-container { 
+      flex-direction: column; 
+      align-items: center; 
+    } 
+   
+    .card { 
+      width: 10%; 
+      margin-bottom: 90px; 
+    } 
+  
+  
+    .slider-toggle { 
+      width: 100%; 
+    } 
+  
+    .search-bar input { 
+      width: 90%; 
+    } 
+  } 
+  
+  @media (max-width: 480px) { 
+    .card { 
+      width: 100%; 
+    } 
+  }

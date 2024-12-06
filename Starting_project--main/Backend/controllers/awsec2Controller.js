@@ -5,6 +5,32 @@ const awsEC2Get = async (req, res) => {
   const getInstance = await awsEC2Model.find({});
   res.send({ getInstance });
 };
+const awsGetConfigs = async (req,res) =>{
+
+  try{
+    const configs = await awsConfigModel.find({});
+    if(!configs){
+      return res.send({
+        success:false,
+        message:"Could not fetch configurations"
+      })
+    }
+    return res.status(200).send({
+      success:true,
+      message:"Accessed Successfully",
+      configs,
+    })
+  }
+  catch(error){
+    console.log(error);
+    return res.status(500).send({
+      success:false,
+      message:"Could not access the configurations",
+      error,
+    })
+  }
+
+}
 const awsSingleInstance = async (req,res) =>{
 
   try{
@@ -37,21 +63,30 @@ const awsSingleInstance = async (req,res) =>{
 }
 
 const awsEC2config = async (req, res) => {
+
   try {
-    const { service, os, vcpu, storage, ram ,userId } = req.body;
+    const { service, os, vcpu, ram,storage, instance,region,days,hours ,userId} = req.body;
     if (!service) return res.send({ message: "Service is required.." });
     if (!os) return res.send({ message: "os is required.." });
     if (!vcpu) return res.send({ message: "vcpu is required.." });
+    if (!ram) return res.send({ message: "ram is required.." });
     if (!storage) return res.send({ message: "Storage is required.." });
-    if (!ram) return res.send({ message: "Ram is required.." });
+    if (!instance) return res.send({ message: "Instance is required.." });
+    if (!region) return res.send({ message: "Region is required.." });
+    if (!days) return res.send({ message: "Days is required.." });
+    if (!hours) return res.send({ message: "Hours is required.." });
     if(!userId) return res.send({message:"userId is required.."})
 
     const config = await new awsConfigModel({
-      service,
-      os,
-      vcpu,
-      storage,
-      ram,
+          service,
+          os,
+          vcpu,
+          ram,
+          storage,
+          instance,
+          region,
+          days,
+          hours,
       userId,
     }).save();
 
@@ -100,31 +135,33 @@ const awsEC2config_get = async(req,res)=>{
 
 const awsEc2config_update = async (req,res)=>{
     try{
-      const {service,
-        os,
-        vcpu,
-        storage,
-        ram,
-        userId,
+      const {service, os, vcpu, ram,storage, instance,region,days,hours ,userId
       } = req.body
 
         const id =req.params['id'];
 
-        if (!service) return res.send({ message: "Service is required.." });
-        if (!os) return res.send({ message: "os is required.." });
-        if (!vcpu) return res.send({ message: "vcpu is required.." });
-        if (!storage) return res.send({ message: "Storage is required.." });
-        if (!ram) return res.send({ message: "Ram is required.." });
-        if(!userId) return res.send({message:"userId is required.."})
-        if(!id) return res.send({message:"Id is required.."})
+    if (!service) return res.send({ message: "Service is required.." });
+    if (!os) return res.send({ message: "os is required.." });
+    if (!vcpu) return res.send({ message: "vcpu is required.." });
+    if (!ram) return res.send({ message: "ram is required.." });
+    if (!storage) return res.send({ message: "Storage is required.." });
+    if (!instance) return res.send({ message: "Instance is required.." });
+    if (!region) return res.send({ message: "Region is required.." });
+    if (!days) return res.send({ message: "Days is required.." });
+    if (!hours) return res.send({ message: "Hours is required.." });
+    if(!userId) return res.send({message:"userId is required.."})
   
     const update = await awsConfigModel.findByIdAndUpdate({_id:id},
       {
       service,
       os,
       vcpu,
-      storage,
       ram,
+      storage,
+      instance,
+      region,
+      days,
+      hours,
       userId,
     });
     
@@ -136,7 +173,7 @@ const awsEc2config_update = async (req,res)=>{
       })
     }
     res.status(200).send({
-      success:false,
+      success:true,
       message:"The document is updated successfully..",
       update
     })
@@ -186,4 +223,5 @@ module.exports = {
   awsEC2config_delete,
   awsEC2config_get,
   awsEc2config_update,
+  awsGetConfigs,
  };

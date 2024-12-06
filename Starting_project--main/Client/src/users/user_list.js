@@ -1,7 +1,8 @@
 
-import React, { useContext, useState } from "react";
+import React, { useContext, useState ,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import Side_Nav from "../Layout/Side_Nav";
+import axios from 'axios';
 
 //import css
 import "../styles/user_list.css";
@@ -26,12 +27,11 @@ const User_list = (props) => {
     "Edit",
   ]);
   const [field, setField] = useState("");
-
-  const handleField = (e) => {
-    e.preventDefault();
-    setField(e.target.addfield.value);
-    setFields([...fields, e.target.addfield.value]);
-  };
+  const [numUsers, setNumUsers] = useState("");
+  const [adminUsername,setAdminUsername] = useState('');
+  const [adminId , setAdminid] = useState();
+  const [generatedUsers, setGeneratedUsers] = useState([]);
+  
 
   const handleGetinputdata = (e) => {
     e.preventDefault();
@@ -69,7 +69,40 @@ const User_list = (props) => {
     context.edit=true;
     navigate('/account/create_user');
   }
+  const HandleUsers =async (e) => {
+    e.preventDefault();
+    // setField(e.target.addfield.value);
+    // setFields([...fields, e.target.addfield.value]);
+    const user = await axios.post("http://localhost:5000/api/auth/get-user",
+      { emailAddress: adminUsername }
+    )
+    setAdminid(user.data.user._id);
 
+
+    const generateRandomCredentials = () => {
+      const randomUsername = `user${Math.floor(Math.random() * 10000)}`;
+      const randomPassword = Math.random().toString(36).slice(-8); // Generate random password of 8 characters
+      return { randomUsername, randomPassword };
+    };
+
+    const users = [];
+    for (let i = 0; i < numUsers; i++) {
+      const { randomUsername, randomPassword } = generateRandomCredentials();
+      users.push({ username: randomUsername, password: randomPassword, Id: adminId });
+    }
+    setGeneratedUsers(users);
+    console.log(gereratedUsers)
+    try {
+      const userpost = await axios.post('http://localhost:5000/api/auth/set_users',
+        { generatedUsers }
+      )
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+ 
+  
   return (
     <>
       <Side_Nav />
@@ -103,22 +136,30 @@ const User_list = (props) => {
               aria-expanded="false"
               aria-controls="addfield"
             >
-              Toggle Add Field
+              Toggle Add Users
             </a>
           </div>
           <div className="my-3  d-flex justify-content-end">
-            {/* <button className='btn btn-success '>+Add Field</button> */}
+            {/* <button className='btn btn-success '>+createusers Field</button> */}
 
             <div class="row">
               <div class="col">
                 <div class="collapse multi-collapse" id="addfield">
                   <div class="card card-body add_field">
-                    <form onSubmit={handleField}>
+                    <form onSubmit={HandleUsers}>
+                    <input
+                        type="text"
+                        name="admin"
+                        placeholder="enter admin username"
+                        className="form-control mb-1"
+                        onChange={(e)=>setAdminUsername(e.target.value)}
+                      ></input>
                       <input
                         type="text"
-                        name="addfield"
-                        placeholder="Add Field"
+                        name="createusers"
+                        placeholder="create users"
                         className="form-control"
+                        onChange={(e)=>setNumUsers(e.target.value)}
                       ></input>
                       <button
                         type="submit"

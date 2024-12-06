@@ -1,4 +1,5 @@
 const randomUser = require("../models/authModel");
+const autoUsers = require("../models/autoCreatedusers");
 const { hashPassword, comparePassword } = require("../helper/authHelper");
 
 //jsonwebtokens
@@ -50,6 +51,34 @@ const randomRegisterController = async (req, res) => {
     });
   }
 };
+
+const autoCreateUsers = async(req,res)=>{
+  try{
+    const {generatedUsers} = req.body;
+    console.log(generatedUsers)
+  if(!generatedUsers) return res.send({message:"Users are required.."})
+  
+  const pushUsers = await  autoUsers.insertMany(generatedUsers);
+  if(!pushUsers){
+    return res.status(201).send({
+      success:false,
+      message:"Could not save the users",
+    })
+  }
+  return res.status(200).send({
+    success:true,
+    message:"Successfully saved users",
+    pushUsers,
+  })
+  }
+  catch(error){
+    return res.status(500).send({
+      success:false,
+      message:"Error in saving users",
+      error,
+    })
+  }
+}
 
 const randomLoginController = async (req, res) => {
   try {
@@ -129,4 +158,5 @@ module.exports = {
   randomRegisterController,
   randomLoginController,
   getUser,
+  autoCreateUsers,
 };

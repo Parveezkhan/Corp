@@ -13,15 +13,31 @@ const awsConfigSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  storage: {
+  ram: {
     type: String,
     required: true,
   },
-  ram: {
+  storage: {
     type: Number,
     required: true,
   },
-  userId: {
+ instance:{
+  type:String,
+  required:true,
+ },
+ region:{
+  type:String,
+  required:true,
+ },
+ days:{
+  type:Number,
+  required:true,
+ },
+ hours:{
+  type:Number,
+  required:true,
+ },
+userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "randomUser",
   },
@@ -30,3 +46,4 @@ const awsConfigSchema = new mongoose.Schema({
 const awsConfigModel = mongoose.model("awsConfigSchema", awsConfigSchema);
 
 module.exports = awsConfigModel;
+

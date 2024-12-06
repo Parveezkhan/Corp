@@ -16,7 +16,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import "../styles/check.css";
 import "../styles/aws.css";
 
-import { Checkbox, ListItemIcon, ListItemText } from "@mui/material";
+import { Checkbox, Input, ListItemIcon, ListItemText } from "@mui/material";
 import { CheckBox } from "@mui/icons-material";
 
 import Check from "./check";
@@ -79,6 +79,10 @@ const rds_storage = [
   "General Purpose SSD (gp3) - IOPS",
   "General Purpose SSD (gp3) - Throughput",
 ];
+//static region
+const regions = ['us-south','us-north','us-east'];
+
+
 function getStyles(name, personName, theme) {
   return {
     fontWeight: personName.includes(name)
@@ -92,12 +96,13 @@ const MultipleSelect = (props) => {
   //props
   let { cloud } = props.cloud;
 
-  const [service, setService] = React.useState([]);
+  const [service, setService] = React.useState('');
   const [os, setOs] = React.useState("");
   const [instance, setInstance] = React.useState("");
   const [vcpu, setVcpu] = React.useState("");
   const [storage, setStorage] = React.useState("");
   const [ram, setRam] = React.useState("");
+  const [region,setRegion]=useState('');
 
   //collect data
   const [users,setUsers] = useState();
@@ -125,11 +130,11 @@ const MultipleSelect = (props) => {
 
   React.useEffect(()=>{
     const getinstance=async ()=>{
-
-    if(vcpu !=='' && storage !==''){
+     console.log('accessing')
+    if(vcpu !=='' && ram !==''){
       const singleInstance = await axios.post("http://localhost:5000/api/services/get-singleec2",
         { 
-          memory:storage,
+          memory:ram,
           vcpu:vcpu,
         }
       );
@@ -147,7 +152,7 @@ const MultipleSelect = (props) => {
     
   getinstance();
   
-},[storage,vcpu]);
+},[ram,vcpu]);
 
   //for running a map function
   const keys = [...Array(10).keys()];
@@ -168,16 +173,17 @@ const MultipleSelect = (props) => {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  
+  const [service_list,setService_list] = useState([]);
   // Handle the checkbox change
   const handleCheckboxChange = (e, value) => {
     if (e.target.checked) {
       setSelectedOptions([...selectedOptions, value]);
-      setService(value);
+      setService(value)
     } else {
       setSelectedOptions(selectedOptions.filter((item) => item !== value));
     }
   };
-  console.log(service)
   // Filter options based on the search query
   const filteredOptions = options.filter((option) =>
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
@@ -191,8 +197,6 @@ const MultipleSelect = (props) => {
 
   //saving catalogs
   const [catalog,setCatalog] = useState([]);
-  const [service_list,setService_list] = useState([]);
-
   //save configurations
   const handleSaveConfigurations = async (e) => {
     e.preventDefault();
@@ -203,24 +207,37 @@ const MultipleSelect = (props) => {
       })
       if(edit === true){
         const update_document = await axios.post(`http://localhost:5000/api/services/awsEc2config_update/${edit_id}`,{
-        service,
-        os,
-        vcpu,
-        storage,
-        ram,
-        userId:user.data.user._id,
+          service,
+          os,
+          vcpu,
+          ram,
+          storage,
+          instance,
+          region,
+          days,
+          hours,
+          userId:user.data.user._id,
         })
-        
+        if(update_document.data.success){
+          toast.success(update_document.data.message)
+        }
+        else{
+          toast.error(update_document.data.message)
+        }
+
         let id = edit_id
-        let updated_catalog = catalog.map(item=> item.id === id ? {...item,service,os,vcpu,storage,ram,Instance,id} : item);
+        let updated_catalog = catalog.map(item=> item.id === id ? {...item,service,os,vcpu,storage,ram,Instance,region,days,hours,id} : item);
         setCatalog(updated_catalog);
-        setService_list(updated_catalog.service);
+        // setService_list(updated_catalog.service);
         // setService('');
         setOs('');
         setVcpu('');
         setStorage('');
         setRam('');
         setINstance('');
+        setRegion('')
+        setDays('')
+        setHours('')
         setEdit(!edit);
       }
       else if( edit === false){
@@ -230,55 +247,54 @@ const MultipleSelect = (props) => {
             service,
             os,
             vcpu,
-            storage,
             ram,
+            storage,
+            instance,
+            region,
+            days,
+            hours,
             userId:user.data.user._id,
           }
         );
+        if(res.data.success){
+          toast.success(res.data.message)
+        }
+        else{
+          toast.error(res.data.message)
+        }
+
+
         let id = res.data.config._id;
-        setCatalog([...catalog,{service,os,vcpu,storage,ram,Instance,id}])
-        service_list(service);
+        setCatalog([...catalog,{service,os,vcpu,storage,ram,Instance,region,days,hours,id}])
+        // service_list(service);
+        setOs('');
+        setVcpu('');
+        setStorage('');
+        setRam('');
+        setINstance('');
+        setRegion('')
+        setDays('')
+        setHours('')
       }
-    setService('');
-    setOs('');
-    setVcpu('');
-    setStorage('');
-    setRam('');
-    setINstance('');
+      
      
     } 
     
     catch (error) {
       console.log(error);
     }
-    // setCatalog([...catalog,{service,os,vcpu,storage,ram,Instance}])
-    
-
-    // if(edit === true){
-    //   setEdit(false);
-    // }
+   
   };
 
 
-  // {
-  //   //  console.log(selectedOptions)
-  //   if (service === "EC2") {
-  //     Instance = ec2_instance;
-  //     Vcpu = ec2_vcpu;
-  //     Storage = ec2_storage;
-  //   } else if (service === "RDS") {
-  //     Instance = rds_instance;
-  //     Vcpu = rds_vcpu;
-  //     Storage = rds_storage;
-  //   }
-  // }
+  
 
   const handleDelete=async(e,instance)=>{
     e.preventDefault();
     const {service,os,vcpu,storage,ram,userId,id} = instance;
     setCatalog((prevItems)=>prevItems.filter(item=>item.id !==instance.id))
     
-
+   
     try{
       const user = await axios.post("http://localhost:5000/api/auth/get-user",{
         emailAddress:userEmail,
@@ -290,41 +306,46 @@ const MultipleSelect = (props) => {
     }
 
   }
+
+
   const [edit,setEdit]=useState(false);
   const [edit_id,setEdit_id] = useState('');
   const handleEdit=async (e,instance)=>{
     e.preventDefault();
+    console.log(instance)
     setEdit(true);
     setService(instance.service);
     setOs(instance.os);
     setVcpu(instance.vcpu);
-    setStorage(instance.storage);
     setRam(instance.ram);
+    setStorage(instance.storage);
     setINstance(instance.Instance);
+    setRegion(instance.region)
+    setDays(instance.days)
+    setHours(instance.hours)
     setEdit_id(instance.id)
     
  }
 
  const calculateCost=(e)=>{
       e.preventDefault();
-      console.log(service)
  }
 
  const handleConfirm=async (e)=>{
       e.preventDefault();
-      try{
-        const data = await axios.post('http://localhost:5000/api/services/python/aws',{
-        service,
-        users,
-        hours,
-        days,
-      })}
-      catch(error){
-        console.log(error)
-      }
-      setUsers('');
-      setHours('');
-      setDays('');
+      // try{
+      //   const data = await axios.post('http://localhost:5000/api/services/python/aws',{
+      //   service,
+      //   users,
+      //   hours,
+      //   days,
+      // })}
+      // catch(error){
+      //   console.log(error)
+      // }
+      // setUsers('');
+      // setHours('');
+      // setDays('');
  }
 
 
@@ -343,25 +364,7 @@ const MultipleSelect = (props) => {
           <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
             <div className="instance ">
               <FormControl sx={{ m: 1, width: 300 }}>
-                {/* <InputLabel id="demo-multiple-name-label">Server</InputLabel>
-                <Select
-                  className="w-100"
-                  labelId="demo-multiple-name-label"
-                  id="demo-multiple-name"
-                  multiple
-                  value={server}
-                  onChange={(e) => {
-                    setServer(e.target.value);
-                  }}
-                  input={<OutlinedInput label="Name" />}
-                  MenuProps={MenuProps}
-                >
-                  {Server.map((name) => (
-                    <MenuItem key={name} value={name}>
-                      {name}
-                    </MenuItem>
-                  ))}
-                </Select> */}
+                
                 <div className="dropdown-container">
                   <div
                     className="dropdown-header w-100"
@@ -471,15 +474,15 @@ const MultipleSelect = (props) => {
           <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
             <div className="instance ">
               <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="demo-multiple-name-label">Storage</InputLabel>
+                <InputLabel id="demo-multiple-name-label">Ram</InputLabel>
                 <Select
                   className="w-100"
                   labelId="demo-multiple-name-label"
                   id="demo-multiple-name"
                   // multiple
-                  value={storage}
+                  value={ram}
                   onChange={(e) => {
-                    setStorage(e.target.value);
+                    setRam(e.target.value);
                   }}
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
@@ -503,14 +506,14 @@ const MultipleSelect = (props) => {
           <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
             <div className="instance ">
               <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="demo-multiple-name-label">Ram</InputLabel>
+                <InputLabel id="demo-multiple-name-label">Storage</InputLabel>
                 <Select
                   className="w-100"
                   labelId="demo-multiple-name-label"
                   id="demo-multiple-name"
                   // multiple
-                  value={ram}
-                  onChange={(e) => setRam(e.target.value)}
+                  value={storage}
+                  onChange={(e) => setStorage(e.target.value)}
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
@@ -519,10 +522,10 @@ const MultipleSelect = (props) => {
                       key !== 0 && (
                         <MenuItem
                           key={key}
-                          value={key * 2}
+                          value={key * 50}
                           // style={getStyles(name, personName, theme)}
                         >
-                          {key * 2}
+                          {key * 50}
                         </MenuItem>
                       )
                   )}
@@ -561,10 +564,57 @@ const MultipleSelect = (props) => {
                 </Select>
               </FormControl>
             </div>
+              
           </div>
         </div>
+        {/* row 4 */}
+        <div className="row  d-flex flex-row justify-content-center  py-2">
+              <div className="col-12 col-ms-12 col-md-12 col-lg-4"><div className="instance ">
+              <FormControl sx={{ m: 1, width: 300 }}>
+                <InputLabel id="demo-multiple-name-label">Select Region</InputLabel>
+                <Select
+                  className="w-100"
+                  labelId="demo-multiple-name-label"
+                  id="demo-multiple-name"
+                  // multiple
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                  input={<OutlinedInput label="Name" />}
+                  MenuProps={MenuProps}
+                >
+                  {regions.map((region)=>(
+                    <MenuItem
+                    key={region}
+                    value={region}
+                    // style={getStyles(name, personName, theme)}
+                
+                  >
+                  {region}
+                  </MenuItem>
+                  )
+                  )}
+                </Select>
+              </FormControl>
+            </div></div>
+              <div className="col-12 col-ms-12 col-md-12 col-lg-4"> <div className="instance">
+              <FormControl sx={{ m: 1, width: 300 }}>
+                <InputLabel id="no_days" style={{fontsize:'22px'}}>Enter Number of Days</InputLabel>
+                <Input labelId='no_days' id="days" type='Number' value={days}
+                  onChange={(e)=>setDays(e.target.value)}></Input>
+                
+              </FormControl>
+            </div></div>
+              <div className="col-12 col-ms-12 col-md-12 col-lg-4"><div className="instance">
+              <FormControl sx={{ m: 1, width: 300 }}>
+                <InputLabel id="no_hours" style={{fontsize:'22px'}}>Enter Number of Hours/day</InputLabel>
+                <Input labelId='no_hours' id="hours" type='Number' value={hours}
+                onChange={(e)=>setHours(e.target.value)}></Input>
+                
+              </FormControl>
+            </div></div>
+            </div>
 
-        {/* row 3 for submitting intance and its configurations */}
+        {/* row 4 for submitting intance and its configurations */}
         <div className="row  d-flex flex-row justify-content-center m-2 text-center">
           <form onSubmit={handleSaveConfigurations}> 
             <button
@@ -578,84 +628,9 @@ const MultipleSelect = (props) => {
           </form>
         </div>
 
-        {/* row -3  */}
-        {/* <div className='row  d-flex flex-row justify-content-center '>
-            <div className='col-12 col-ms-12 col-md-12 col-lg-4 '><div className='instance w-100'>
-            <FormControl sx={{ m: 1, width: 300 }} >
-        <InputLabel id="demo-multiple-name-label">Instance</InputLabel>
-        <Select
-          className='w-100'
-          labelId="demo-multiple-name-label"
-          id="demo-multiple-name"
-          // multiple
-          value={personName}
-          onChange={handleChange}
-          input={<OutlinedInput label="Name" />}
-          MenuProps={MenuProps}
-        >
-          {Instances.map((name) => (
-            <MenuItem
-              key={name}
-              value={name}
-              style={getStyles(name, personName, theme)}
-            >
-              {name}
-            </MenuItem>
-          ))}
-        </Select></FormControl>
-        </div></div>
-            
-            <div className='col-12 col-ms-12 col-md-12 col-lg-4 '><div className='instance '>
-            <FormControl sx={{ m: 1, width: 300 }} >
-        <InputLabel id="demo-multiple-name-label">Instance</InputLabel>
-        <Select
-          className='w-100'
-          labelId="demo-multiple-name-label"
-          id="demo-multiple-name"
-          // multiple
-          value={personName}
-          onChange={handleChange}
-          input={<OutlinedInput label="Name" />}
-          MenuProps={MenuProps}
-        >
-          {Instances.map((name) => (
-            <MenuItem
-              key={name}
-              value={name}
-              style={getStyles(name, personName, theme)}
-            >
-              {name}
-            </MenuItem>
-          ))}
-        </Select></FormControl>
-        </div></div>
-            <div className='col-12 col-ms-12 col-md-12 col-lg-4 '><div className='instance '>
-            <FormControl sx={{ m: 1, width: 300 }} >
-        <InputLabel id="demo-multiple-name-label">Instance</InputLabel>
-        <Select
-          className='w-100'
-          labelId="demo-multiple-name-label"
-          id="demo-multiple-name"
-          // multiple
-          value={personName}
-          onChange={handleChange}
-          input={<OutlinedInput label="Name" />}
-          MenuProps={MenuProps}
-        >
-          {Instances.map((name) => (
-            <MenuItem
-              key={name}
-              value={name}
-              style={getStyles(name, personName, theme)}
-            >
-              {name}
-            </MenuItem>
-          ))}
-        </Select></FormControl>
-        </div></div>
-          </div> */}
+       
       </div>
-      <div className="container my-2 p-2">
+      <div className="container-fluid my-2 p-2">
         <div className="row instance-calculate d-flex justify-content-center">
           <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
             <table className="table table-hover border border-4 border-primary rounded-3">
@@ -686,7 +661,8 @@ const MultipleSelect = (props) => {
                           style={{ width: "100px" }}
                           onClick={(e)=>handleDelete(e,instance)}
                         >
-                          Delete
+                        Delete
+
                         </button>
                       </div>
                     </td>
@@ -728,28 +704,6 @@ const MultipleSelect = (props) => {
                             placeholder="Enter Users"
                             value={users}
                             onChange={(e)=>setUsers(e.target.value)}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label for="no_days">Enter No of days</label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            id="no_days"
-                            placeholder="Enter Days"
-                            value={days}
-                            onChange={(e)=>setDays(e.target.value)}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label for="no_hours">Enter No of Hours</label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            id="no_hours"
-                            placeholder="Enter Hours"
-                            value={hours}
-                            onChange={(e)=>setHours(e.target.value)}
                           />
                         </div>
                         <div className="form-group p-2 text-center">
