@@ -54,24 +54,31 @@ const randomRegisterController = async (req, res) => {
 
 const autoCreateUsers = async(req,res)=>{
   try{
-    const {generatedUsers} = req.body;
-    console.log(generatedUsers)
-  if(!generatedUsers) return res.send({message:"Users are required.."})
+    const {users} = req.body;
+  if(!users) return res.send({message:"Users are required.."})
   
-  const pushUsers = await  autoUsers.insertMany(generatedUsers);
-  if(!pushUsers){
-    return res.status(201).send({
-      success:false,
-      message:"Could not save the users",
-    })
+  for (let i=0;i<users.length;i++){
+    const pushUsers = await  new autoUsers({
+      userName:users[i].userName,
+      password:users[i].password,
+      adminId:users[i].adminId,
+    }).save();
   }
+   
+  // if(!pushUsers){
+  //   return res.status(201).send({
+  //     success:false,
+  //     message:"Could not save the users",
+  //   })
+  // }
   return res.status(200).send({
     success:true,
     message:"Successfully saved users",
-    pushUsers,
+    
   })
   }
   catch(error){
+    console.log(error)
     return res.status(500).send({
       success:false,
       message:"Error in saving users",
@@ -91,6 +98,26 @@ const randomLoginController = async (req, res) => {
     }
     const user = await randomUser.findOne({ emailAddress });
     if (!user) {
+      const user1 = await autoUsers.findOne({userName:emailAddress,password:password});
+      if(!user1){
+        return res.send({
+          success:false,
+          message:"Invalid username or password found",
+        })
+      }
+      else{
+        const token = JWT.sign({ _id: user1._id }, process.env.SECRET_KEY, {
+          expiresIn: "7d",});
+        return res.status(200).send({
+          success:true,
+          message:"Login Successfull",
+          user:{
+            username:user1.userName,
+          },
+          token,
+          role:user1.role,
+        })
+      }
       return res.send({
         success: false,
         message: "user not found",
@@ -109,7 +136,7 @@ const randomLoginController = async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.status(200).send({
+    return res.status(200).send({
       success: true,
       message: "Login successfull",
       user: {
@@ -120,7 +147,7 @@ const randomLoginController = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
+    return res.status(500).send({
       success: "false",
       message: "Error in Login",
       error,
@@ -132,12 +159,17 @@ const getUser = async(req,res)=>{
   try{
     const {emailAddress} = req.body;
     if(!emailAddress){
-      res.send({message:"Required Email.."})
+      return res.send({message:"Required Email.."})
     }
     
     const user = await randomUser.findOne({emailAddress});
-
-    res.status(201).send({
+    if(!user){
+      return res.status(201).send({
+        success:false,
+        message:"User not found"
+      })
+    }
+    return res.status(200).send({
       success:true,
       message:"User found",
       user,
@@ -145,18 +177,48 @@ const getUser = async(req,res)=>{
   }
   catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: "false",
+    return res.status(500).send({
+      success: false,
       message: "User not found",
       error,
     });
   }
   }
 
+const getAdminUsers = async(req,res)=>{
+  try{
+    const {adminId} = req.body;
+    if(!adminId) {
+      return res.send({
+        message:"Admin ID is required.."
+      })
+    }
+    const getUser = await autoUsers.find({adminId:adminId});
+    if(!getUser){
+      return res.send({
+        success:false,
+        message:"Invalid Admin Id",
+      })
+    }
+    return res.status(200).send({
+      success:true,
+      message:"Users accessed successfully",
+      getUser,
+    })
+  }
+  catch(error){
+    return res.status(500).send({
+      success:false,
+      message:"Could not find the user",
+      error,
+    })
+  }
+}
 
 module.exports = {
   randomRegisterController,
   randomLoginController,
   getUser,
   autoCreateUsers,
+  getAdminUsers,
 };

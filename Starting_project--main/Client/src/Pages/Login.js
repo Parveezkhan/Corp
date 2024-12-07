@@ -61,7 +61,7 @@ const Login= ()=>{
     <form  style={{width:'200px' }} className='form' onSubmit={handleData}>
   <div class="form-group m-2" >
     <label for="exampleInputEmail1" className='lab'>Email address</label>
-    <input type="email" 
+    <input type="text"
     class="form-control" 
     id="exampleInputEmail1" 
     value={emailAddress}

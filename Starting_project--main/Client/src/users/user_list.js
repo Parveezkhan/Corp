@@ -4,6 +4,10 @@ import { useNavigate } from "react-router-dom";
 import Side_Nav from "../Layout/Side_Nav";
 import axios from 'axios';
 
+//import toastify
+import {toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
+
 //import css
 import "../styles/user_list.css";
 
@@ -45,6 +49,21 @@ const User_list = (props) => {
     {admin:"A3",firstName:"john",lastName:"mark",emailAddress:"@johnmark",country:"India",city:"Bangalore",lastAccess:"3 day ago"}
   
 ])
+  useEffect(()=>{
+       
+        const loggedUser =async ()=>{
+          const user = JSON.parse(localStorage.getItem('auth'));
+          console.log(user);
+          if(user.role === 'superadmin' || user.role === 'admin'){
+            const getUserDetails = await axios.post("http://localhost:5000/api/auth/get-user",
+              { emailAddress: user.user.emailAddress }
+            )
+          }
+          
+        }
+       loggedUser();
+  },[])
+
 
   const [searchQuery,setSearchQuery]=useState("");
 
@@ -69,17 +88,25 @@ const User_list = (props) => {
     context.edit=true;
     navigate('/account/create_user');
   }
+ 
   const HandleUsers =async (e) => {
     e.preventDefault();
     // setField(e.target.addfield.value);
     // setFields([...fields, e.target.addfield.value]);
-    const user = await axios.post("http://localhost:5000/api/auth/get-user",
-      { emailAddress: adminUsername }
-    )
-    setAdminid(user.data.user._id);
-
-
-    const generateRandomCredentials = () => {
+        const user = await axios.post("http://localhost:5000/api/auth/get-user",
+          { emailAddress: adminUsername }
+        )
+        console.log(user)
+        if(user.data.success ===false){
+          toast.error("Admin is not found");
+          return;
+        }
+        else{
+          setAdminid(user.data.user._id)
+        }
+        
+     
+  const generateRandomCredentials = () => {
       const randomUsername = `user${Math.floor(Math.random() * 10000)}`;
       const randomPassword = Math.random().toString(36).slice(-8); // Generate random password of 8 characters
       return { randomUsername, randomPassword };
@@ -88,21 +115,30 @@ const User_list = (props) => {
     const users = [];
     for (let i = 0; i < numUsers; i++) {
       const { randomUsername, randomPassword } = generateRandomCredentials();
-      users.push({ username: randomUsername, password: randomPassword, Id: adminId });
+      users.push({ userName: randomUsername, password: randomPassword, adminId: user.data.user._id });
     }
     setGeneratedUsers(users);
-    console.log(gereratedUsers)
     try {
       const userpost = await axios.post('http://localhost:5000/api/auth/set_users',
-        { generatedUsers }
+        { users }
       )
+      if(userpost.data.success){
+        toast.success(userpost.data.message)
+      }
+      else{
+        toast.error(userpost.data.message)
+      }
+      
     }
+      
     catch (error) {
       console.log(error);
     }
+    setAdminUsername('');
+    setNumUsers('');
   }
- 
-  
+
+//  setNumUsers (''); 
   return (
     <>
       <Side_Nav />
@@ -152,6 +188,7 @@ const User_list = (props) => {
                         name="admin"
                         placeholder="enter admin username"
                         className="form-control mb-1"
+                        value={adminUsername}
                         onChange={(e)=>setAdminUsername(e.target.value)}
                       ></input>
                       <input
@@ -159,6 +196,7 @@ const User_list = (props) => {
                         name="createusers"
                         placeholder="create users"
                         className="form-control"
+                        value={numUsers}
                         onChange={(e)=>setNumUsers(e.target.value)}
                       ></input>
                       <button
