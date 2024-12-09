@@ -18,7 +18,7 @@ const { PythonShell } = require('python-shell');
 const { exec } = require('child_process')
 const {spawn} = require('child_process')
 
-router.get("/get-awsec2", awsEC2Get);
+router.post("/get-awsec2", awsEC2Get);
 router.post('/get-singleec2',awsSingleInstance)
 router.post('/awsconfig',awsEC2config);
 router.post("/awsconfig_get/:id",awsEC2config_get);
@@ -27,18 +27,22 @@ router.delete('/awsconfig_delete/:id',awsEC2config_delete);
 router.get('/get_awsConfig',awsGetConfigs);
 
 router.post('/python/aws', (req, res) => {
-  // Spawn a Python process
-  
-  const pythonProcess = spawn('python', ['aws_service_selector.py']);
-  
+  const {services,users,days,hours} = req.body;
+  const args = [services,users,days,hours];
+  console.log(services)
+  const pythonProcess = spawn('python', ['aws_service_selector.py',...args]);
+
   // Capture the output of the Python script
   pythonProcess.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
+    let result=data.toString();
+      console.log(`stdout: ${result}`);
   });
 
   pythonProcess.stderr.on('data', (data) => {
       console.error(`stderr: ${data}`);
   });
+ // Immediately respond to the  request
+  res.json({ message: 'Python script is running in the background.' });
 
   pythonProcess.on('close', (code) => {
       console.log(`Aws process exited with code ${code}`);

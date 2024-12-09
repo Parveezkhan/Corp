@@ -2,8 +2,29 @@ const awsEC2Model = require("../models/awsModel");
 const awsConfigModel = require("../models/awsConfigModel");
 
 const awsEC2Get = async (req, res) => {
-  const getInstance = await awsEC2Model.find({});
-  res.send({ getInstance });
+  try{
+    const {service}=req.body;
+    const getInstance = await awsEC2Model.find({Service:service});
+    if(!getInstance){
+      return res.status(201).send({
+        success:false,
+        message:"Could not access the service details"
+      })
+    }
+    return res.status(200).send({ 
+      success:true,
+      message:"Successfully accessed the service details",
+      getInstance,
+    });
+  }
+  catch(error){
+    return res.status(500).send({
+      success:false,
+      message:"Error in accessing service details",
+      error,
+    })
+  }
+  
 };
 const awsGetConfigs = async (req,res) =>{
 
@@ -65,7 +86,7 @@ const awsSingleInstance = async (req,res) =>{
 const awsEC2config = async (req, res) => {
 
   try {
-    const { service, os, vcpu, ram,storage, instance,region,days,hours ,userId} = req.body;
+    const { service, os, vcpu, ram,storage, instance,region,days,hours,users ,userId} = req.body;
     if (!service) return res.send({ message: "Service is required.." });
     if (!os) return res.send({ message: "os is required.." });
     if (!vcpu) return res.send({ message: "vcpu is required.." });
@@ -75,6 +96,7 @@ const awsEC2config = async (req, res) => {
     if (!region) return res.send({ message: "Region is required.." });
     if (!days) return res.send({ message: "Days is required.." });
     if (!hours) return res.send({ message: "Hours is required.." });
+    if (!users) return res.send({ message: "Users is required.." });
     if(!userId) return res.send({message:"userId is required.."})
 
     const config = await new awsConfigModel({
@@ -87,6 +109,7 @@ const awsEC2config = async (req, res) => {
           region,
           days,
           hours,
+          users,
       userId,
     }).save();
 

@@ -37,6 +37,10 @@ const awsConfigSchema = new mongoose.Schema({
   type:Number,
   required:true,
  },
+ users:{
+  type:Number,
+  required:true,
+ },
 userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "randomUser",

@@ -52,36 +52,61 @@ const randomRegisterController = async (req, res) => {
   }
 };
 
-const autoCreateUsers = async(req,res)=>{
-  try{
-    const {users} = req.body;
-  if(!users) return res.send({message:"Users are required.."})
-  
-  for (let i=0;i<users.length;i++){
-    const pushUsers = await  new autoUsers({
-      userName:users[i].userName,
-      password:users[i].password,
-      adminId:users[i].adminId,
-    }).save();
+const autoCreateUsers = async (req, res) => {
+  try {
+    const { users } = req.body;
+    if (!users) return res.send({ message: "Users are required.." });
+
+    for (let i = 0; i < users.length; i++) {
+      const pushUsers = await new autoUsers({
+        userName: users[i].userName,
+        password: users[i].password,
+        adminId: users[i].adminId,
+      }).save();
+    }
+
+    // if(!pushUsers){
+    //   return res.status(201).send({
+    //     success:false,
+    //     message:"Could not save the users",
+    //   })
+    // }
+    return res.status(200).send({
+      success: true,
+      message: "Successfully saved users",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Error in saving users",
+      error,
+    });
   }
-   
-  // if(!pushUsers){
-  //   return res.status(201).send({
-  //     success:false,
-  //     message:"Could not save the users",
-  //   })
-  // }
-  return res.status(200).send({
-    success:true,
-    message:"Successfully saved users",
-    
-  })
+};
+const autoDeleteUsers =async (req,res)=>{
+  try{
+    const {userId} = req.body;
+    if(!userId) return res.send("Userid is required")
+    const deleteUser = await autoUsers.findByIdAndDelete({_id:userId});
+    if(!deleteUser){
+      return res.status(201).send({
+        success:false,
+        message:"Could not Remove",
+        
+      })
+    }
+    return res.status(200).send({
+      success:true,
+      message:"Successfully deleted",
+      deleteUser,
+    })
+
   }
   catch(error){
-    console.log(error)
     return res.status(500).send({
       success:false,
-      message:"Error in saving users",
+      message:"Could not delete the user",
       error,
     })
   }
@@ -98,25 +123,28 @@ const randomLoginController = async (req, res) => {
     }
     const user = await randomUser.findOne({ emailAddress });
     if (!user) {
-      const user1 = await autoUsers.findOne({userName:emailAddress,password:password});
-      if(!user1){
+      const user1 = await autoUsers.findOne({
+        userName: emailAddress,
+        password: password,
+      });
+      if (!user1) {
         return res.send({
-          success:false,
-          message:"Invalid username or password found",
-        })
-      }
-      else{
+          success: false,
+          message: "Invalid username or password found",
+        });
+      } else {
         const token = JWT.sign({ _id: user1._id }, process.env.SECRET_KEY, {
-          expiresIn: "7d",});
+          expiresIn: "1d",
+        });
         return res.status(200).send({
-          success:true,
-          message:"Login Successfull",
-          user:{
-            username:user1.userName,
+          success: true,
+          message: "Login Successfull",
+          user: {
+            username: user1.userName,
           },
           token,
-          role:user1.role,
-        })
+          role: user1.role,
+        });
       }
       return res.send({
         success: false,
@@ -155,27 +183,26 @@ const randomLoginController = async (req, res) => {
   }
 };
 
-const getUser = async(req,res)=>{
-  try{
-    const {emailAddress} = req.body;
-    if(!emailAddress){
-      return res.send({message:"Required Email.."})
+const getUser = async (req, res) => {
+  try {
+    const { emailAddress } = req.body;
+    if (!emailAddress) {
+      return res.send({ message: "Required Email.." });
     }
-    
-    const user = await randomUser.findOne({emailAddress});
-    if(!user){
+
+    const user = await randomUser.findOne({ emailAddress });
+    if (!user) {
       return res.status(201).send({
-        success:false,
-        message:"User not found"
-      })
+        success: false,
+        message: "User not found",
+      });
     }
     return res.status(200).send({
-      success:true,
-      message:"User found",
+      success: true,
+      message: "User found",
       user,
-    })
-  }
-  catch (error) {
+    });
+  } catch (error) {
     console.log(error);
     return res.status(500).send({
       success: false,
@@ -183,37 +210,37 @@ const getUser = async(req,res)=>{
       error,
     });
   }
-  }
+};
 
-const getAdminUsers = async(req,res)=>{
-  try{
-    const {adminId} = req.body;
-    if(!adminId) {
+const getAdminUsers = async (req, res) => {
+  try {
+    const { adminId } = req.body;
+    if (!adminId) {
       return res.send({
-        message:"Admin ID is required.."
-      })
+        success: false,
+        message: "Admin ID is required..",
+      });
     }
-    const getUser = await autoUsers.find({adminId:adminId});
-    if(!getUser){
+    const getUser = await autoUsers.find({ adminId: adminId });
+    if (!getUser) {
       return res.send({
-        success:false,
-        message:"Invalid Admin Id",
-      })
+        success: false,
+        message: "Invalid Admin Id",
+      });
     }
     return res.status(200).send({
-      success:true,
-      message:"Users accessed successfully",
+      success: true,
+      message: "Users accessed successfully",
       getUser,
-    })
-  }
-  catch(error){
+    });
+  } catch (error) {
     return res.status(500).send({
-      success:false,
-      message:"Could not find the user",
+      success: false,
+      message: "Could not find the user",
       error,
-    })
+    });
   }
-}
+};
 
 module.exports = {
   randomRegisterController,
@@ -221,4 +248,5 @@ module.exports = {
   getUser,
   autoCreateUsers,
   getAdminUsers,
+  autoDeleteUsers,
 };
