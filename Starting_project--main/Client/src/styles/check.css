@@ -14,7 +14,7 @@
     border: 1px solid #ccc;
     cursor: pointer;
     text-align: center;
-    line-height: 50px;
+    line-height: 50px !important;
     /* font-weight: bold; */
     height: inherit;
     border-radius: 2px;

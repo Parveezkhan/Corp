@@ -1,0 +1,40 @@
+.catalog-container{
+    margin-top:62px !important;
+    margin-left: 64px !important;
+    font-size: 22px;
+}
+.catalog-navigation{
+    font-size: 16px;
+    fonst-family:'poppins'
+}
+.nav-settings{
+    align-items: center;
+    font-weight: 500;
+    font-family: 'poppins';
+}
+.catalog-settings{
+    margin-right: 2px;
+    cursor: pointer;
+}
+.catalog-settings:hover{
+    opacity: 0.5;
+}
+.catalog-title{
+    font-size:26px;
+    font-weight:700;
+}
+.title{
+    font-size: 24px;
+    font-weight: 600;
+
+}
+.configurations{
+    height:300px;
+}
+.configurations span{
+    font-weight: 600;
+}
+.lab-details{
+    height: 300px;
+    width: 60%;
+}

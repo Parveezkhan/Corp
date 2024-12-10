@@ -65,12 +65,6 @@ const autoCreateUsers = async (req, res) => {
       }).save();
     }
 
-    // if(!pushUsers){
-    //   return res.status(201).send({
-    //     success:false,
-    //     message:"Could not save the users",
-    //   })
-    // }
     return res.status(200).send({
       success: true,
       message: "Successfully saved users",

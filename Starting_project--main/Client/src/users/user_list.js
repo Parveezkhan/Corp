@@ -22,12 +22,8 @@ const User_list = (props) => {
   const [fields, setFields] = useState([
     "#",
     "Admin For User",
-    "First Name",
-    "Last Name",
-    "Email Address",
-    "Country",
-    "City/State",
-    "Last Access",
+    "User Name",
+    "Role",
     "Edit",
   ]);
   const [field, setField] = useState("");
@@ -35,6 +31,7 @@ const User_list = (props) => {
   const [adminUsername,setAdminUsername] = useState('');
   const [adminId , setAdminid] = useState();
   const [generatedUsers, setGeneratedUsers] = useState([]);
+  const [adminUser,setAdminUser]=useState();
   
 
   const handleGetinputdata = (e) => {
@@ -43,12 +40,7 @@ const User_list = (props) => {
     setSearchQuery(searchvalue)
   };
 
-  const [users,setUsers]=useState([
-    {admin:"A1",firstName:"Mark",lastName:"otto",emailAddress:"@markotto",country:"India",city:"Bangalore",lastAccess:"1 day ago"},
-    {admin:"A2",firstName:"Larry",lastName:"page",emailAddress:"@larrypage",country:"India",city:"Bangalore",lastAccess:"2 day ago"},
-    {admin:"A3",firstName:"john",lastName:"mark",emailAddress:"@johnmark",country:"India",city:"Bangalore",lastAccess:"3 day ago"}
-  
-])
+  const [users,setUsers]=useState([])
   useEffect(()=>{
        
         const loggedUser =async ()=>{
@@ -58,6 +50,11 @@ const User_list = (props) => {
             const getUserDetails = await axios.post("http://localhost:5000/api/auth/get-user",
               { emailAddress: user.user.emailAddress }
             )
+            setAdminUser(user.user.emailAddress)
+            const getUsers = await axios.post('http://localhost:5000/api/auth/getadminusers',
+              {adminId:getUserDetails.data.user._id}
+            )
+            setUsers(getUsers.data.getUser)
           }
           
         }
@@ -71,13 +68,22 @@ const User_list = (props) => {
   let filteredOptions = users;
 
    filteredOptions = users.filter((option) =>
-    option.firstName.toLowerCase().includes(searchQuery.toLowerCase())
+    option.userName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   //handeldelete
-  const handleDelete=(e,name)=>{
+  const handleDelete=async(e,user)=>{
     e.preventDefault();
-    setUsers((prevItems)=>prevItems.filter(item=>item.firstName!==name))
+    try{
+      const deleteUser = await axios.post('http://localhost:5000/api/auth/deleteAutoUser',
+        {userId:user._id}
+      )
+    }
+    catch(error){
+      console.log(error);
+    }
+    setUsers((prevItems)=>prevItems.filter(item=>item.userName!==user.userName));
+    
     
   }
 
@@ -215,14 +221,6 @@ const User_list = (props) => {
 
         <table className="table table-hover border border-1 m-3 w-80">
           <thead>
-            {/* <th scope="col">#</th>
-              <th scope="col">First Name</th>
-              <th scope="col">Last Name</th>
-              <th scope="col">Email Address </th>
-              <th scope="col">Country</th>
-              <th scope="col">City/State </th>
-              <th scopr="col">Last Access</th>
-              <th scope="col">Edit</th> */}
             <tr>
               {fields.map((item) => (
                 <th scope="col">{item}</th>
@@ -232,20 +230,16 @@ const User_list = (props) => {
           <tbody>
             {filteredOptions.map((user,index)=>(
               <tr>
-                <th scope='row'>{index}</th>
-                <td>{user.admin}</td>
-                <td>{user.firstName}</td>
-                <td>{user.lastName}</td>
-                <td>{user.emailAddress}</td>
-                <td>{user.country}</td>
-                <td>{user.city}</td>
-                <td>{user.lastAccess}</td>
+                <th scope='row'>{index+1}</th>
+                <td>{adminUser}</td>
+                <td>{user.userName}</td>
+                <td>{user.role}</td>
                 <td>
                 <div className="user_modification d-flex flex-row justify-content-start text-start">
                   <button type="button" className="btn btn-primary mx-1" onClick={handleEdit}>
                     Edit
                   </button>
-                  <button type="button" className="btn btn-danger mx-1" onClick={(e)=>handleDelete(e,user.firstName)}>
+                  <button type="button" className="btn btn-danger mx-1" onClick={(e)=>handleDelete(e,user)}>
                     Delete
                   </button>
                 </div>

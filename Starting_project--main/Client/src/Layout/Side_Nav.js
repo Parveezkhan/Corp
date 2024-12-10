@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import logo from "../images/Logo...png"
 import '../styles/Home.css'
-import { Link } from 'react-router-dom';
+import { Link ,useNavigate} from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -39,6 +39,10 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import CloudQueueIcon from '@mui/icons-material/CloudQueue';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 // import MenuIcon from '@mui/icons-material/Menu'
+
+//import toastify
+import {toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
 
 //import Components
 import Slider from '../Home_Components/Slider';
@@ -166,9 +170,47 @@ const MiniDrawer=()=>  {
   
     //logout
     const handleLogout=(e)=>{
-      console.log('logout')
+      try{
+        const logout = localStorage.removeItem('auth');
+      }
+      catch(error){
+        console.log(error)
+      }
     }
+    const navigate = useNavigate();
+const loggedInAuth =JSON.parse( localStorage.getItem('auth'));
+const handleLink=(e,text)=>{
+  let nav = ''; // Initialize nav variable
 
+    // Assign nav based on the text
+    if (text === 'Home') {
+      navigate('/')
+       return;
+      }
+    else if (text === 'Dashboard'){
+       navigate('/')
+       return;
+      }
+    else if ((text === 'All Clouds' && (loggedInAuth.role === 'admin' || loggedInAuth.role==='superadmin')) ) {
+      navigate('/services')
+      return
+    }
+    
+    else if ((text === "All Services" && (loggedInAuth.role === 'admin'|| loggedInAuth.role==='superadmin')))
+      { navigate('/services/aws');
+        return;
+      }
+    // else{
+    //   toast.error("Required Admin Access Only")
+    // }
+    else if ((text === 'Site Administration' && (loggedInAuth.role === 'admin'|| loggedInAuth.role==='superadmin'))) {
+      navigate('/');
+      return;
+    }
+    else{
+      toast.error("Required Admin Access Only")
+    }
+  }
 
   return (
    
@@ -223,7 +265,7 @@ const MiniDrawer=()=>  {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>handleLogout
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>
                   <Typography sx={{ textAlign: 'center' }}>
                   {setting=='Logout' && <Link to='/login' className="text-decoration-none text-dark" onClick={handleLogout}>{setting} </Link>}
                   {setting=='Dashboard' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}
@@ -291,6 +333,7 @@ const MiniDrawer=()=>  {
                 </ListItemIcon>
                 <ListItemText
                   primary={text}
+                  onClick={(e)=>handleLink(e,text)}
                   sx={[
                     open
                       ? {

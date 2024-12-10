@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import logo from "../images/Logo...png"
 import '../styles/Home.css'
 import { Link } from 'react-router-dom';
@@ -161,6 +162,42 @@ export default function MiniDrawer() {
     setOpen(false);
   };
 
+const navigate = useNavigate();
+const loggedInAuth =JSON.parse( localStorage.getItem('auth'));
+ const handleLink=(e,text)=>{
+  let nav = ''; // Initialize nav variable
+
+    // Assign nav based on the text
+    if (text === 'Home') {
+      navigate('/')
+       return;
+      }
+    else if (text === 'Dashboard'){
+       navigate('/')
+       return;
+      }
+    else if ((text === 'All Clouds' && (loggedInAuth.role === 'admin' || loggedInAuth.role==='superadmin')) ) {
+      navigate('/services')
+      return
+    }
+    
+    else if ((text === "All Services" && (loggedInAuth.role === 'admin'|| loggedInAuth.role==='superadmin')))
+      { navigate('/services/aws');
+        return;
+      }
+    // else{
+    //   toast.error("Required Admin Access Only")
+    // }
+    else if ((text === 'Site Administration' && (loggedInAuth.role === 'admin'|| loggedInAuth.role==='superadmin'))) {
+      navigate('/');
+      return;
+    }
+    else{
+      toast.error("Required Admin Access Only")
+    }
+  }
+
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -242,8 +279,9 @@ export default function MiniDrawer() {
                   {(text === "All Services" && <Link to="/services/aws"><ElectricalServicesIcon /></Link>)}
                   {(text === 'Site Administration' && <Link to="/"><SettingsIcon /></Link>)}
                 </ListItemIcon>
-                <ListItemText
-                  primary={text}
+                   <ListItemText
+                     primary={text}
+                     onClick={(e)=>handleLink(e,text)}
                   sx={[
                     open
                       ? {

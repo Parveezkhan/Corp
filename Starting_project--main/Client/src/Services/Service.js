@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import logo from "../images/Logo...png"
 import '../styles/Home.css'
-import { Link } from 'react-router-dom';
+import { Link ,useNavigate} from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -44,6 +44,10 @@ import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 //import Components
 import Aws_Instance_Services from './Aws_Instance_Services'
 import Azure_Instance_Services from './Azure_Instance_Services'
+
+//import toastify
+import {toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
 
 //import context
 import { AuthContext } from '../context/auth';
@@ -182,6 +186,41 @@ const handleLogout=()=>{
   localStorage.removeItem('auth');
   setLog(true);
 }
+const navigate = useNavigate();
+const loggedInAuth =JSON.parse( localStorage.getItem('auth'));
+const handleLink=(e,text)=>{
+  let nav = ''; // Initialize nav variable
+
+    // Assign nav based on the text
+    if (text === 'Home') {
+      navigate('/')
+       return;
+      }
+    else if (text === 'Dashboard'){
+       navigate('/')
+       return;
+      }
+    else if ((text === 'All Clouds' && (loggedInAuth.role === 'admin' || loggedInAuth.role==='superadmin')) ) {
+      navigate('/services')
+      return
+    }
+    
+    else if ((text === "All Services" && (loggedInAuth.role === 'admin'|| loggedInAuth.role==='superadmin')))
+      { navigate('/services/aws');
+        return;
+      }
+    // else{
+    //   toast.error("Required Admin Access Only")
+    // }
+    else if ((text === 'Site Administration' && (loggedInAuth.role === 'admin'|| loggedInAuth.role==='superadmin'))) {
+      navigate('/');
+      return;
+    }
+    else{
+      toast.error("Required Admin Access Only")
+    }
+  }
+
 
   return (
    
@@ -304,6 +343,8 @@ const handleLogout=()=>{
                 </ListItemIcon>
                 <ListItemText
                   primary={text}
+                  onClick={(e)=>handleLink(e,text)}
+
                   sx={[
                     open
                       ? {

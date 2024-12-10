@@ -9,8 +9,13 @@ import Service  from './Services/Service.js';
 import {Account} from './users/Account.js';
 import User_List from './users/user_list.js'
 import Catalogs from './components/Catalogs.js'
+import Catalog from './components/Catalog.js'
+import PrivateRoute from './Privacy/PrivateRoute.js';
 
 function App() {
+ 
+  
+
   return (
     <>
     <Router>
@@ -18,13 +23,14 @@ function App() {
         <Route path='/' element={<Home/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/signup' element={<Signup/>}/>
-        <Route path='/local/server' element={<Calculate/>}/>
-        <Route path='/services' element={<Clouds_card_container/>} />
+        <Route path='/local/server' element={<PrivateRoute><Calculate/></PrivateRoute>}/>
+        <Route path='/services' element={<PrivateRoute><Clouds_card_container/></PrivateRoute>} />
         <Route path='/nav' element={<Side_Nav/>} />
-        <Route path='/services/:cloud' element={<Service/>}/>
-        <Route path='/account/create_user' element={<Account/>}></Route>
-        <Route path='/account/user_list' element={<User_List/>}></Route>
-        <Route path='/catalogs' element={<Catalogs/>}></Route>
+        <Route path='/services/:cloud' element={<PrivateRoute><Service/></PrivateRoute>}/>
+        <Route path='/account/create_user' element={<PrivateRoute><Account/></PrivateRoute>}></Route>
+        <Route path='/account/user_list' element={<PrivateRoute><User_List/></PrivateRoute>}></Route>
+        <Route path='/catalogs' element={<PrivateRoute><Catalogs/></PrivateRoute>}></Route>
+        <Route path='/catalog' element={<PrivateRoute><Catalog/></PrivateRoute>}></Route>
       </Routes>
       
     </Router>

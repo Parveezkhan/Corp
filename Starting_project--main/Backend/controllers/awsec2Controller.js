@@ -55,12 +55,15 @@ const awsGetConfigs = async (req,res) =>{
 const awsSingleInstance = async (req,res) =>{
 
   try{
-    const {memory,vcpu} = req.body;
-    const getSingle = await awsEC2Model.findOne({
+    const {service,memory,vcpu} = req.body;
+    console.log(service,memory,vcpu)
+    const getSingle = await awsEC2Model.find({
+      Service:service,
       memory:memory,
       vcpu:vcpu,
     })
-    if(!getSingle){
+    console.log(getSingle)
+    if(!getSingle.length>0){
       return res.send({
         success:false,
         message:"No Particular Instance Is Found..",
@@ -158,7 +161,7 @@ const awsEC2config_get = async(req,res)=>{
 
 const awsEc2config_update = async (req,res)=>{
     try{
-      const {service, os, vcpu, ram,storage, instance,region,days,hours ,userId
+      const {service, os, vcpu, ram,storage, instance,region,days,hours,users ,userId
       } = req.body
 
         const id =req.params['id'];
@@ -172,6 +175,7 @@ const awsEc2config_update = async (req,res)=>{
     if (!region) return res.send({ message: "Region is required.." });
     if (!days) return res.send({ message: "Days is required.." });
     if (!hours) return res.send({ message: "Hours is required.." });
+    if (!users) return res.send({ message: "Users is required.." });
     if(!userId) return res.send({message:"userId is required.."})
   
     const update = await awsConfigModel.findByIdAndUpdate({_id:id},
@@ -185,6 +189,7 @@ const awsEc2config_update = async (req,res)=>{
       region,
       days,
       hours,
+      users,
       userId,
     });
     

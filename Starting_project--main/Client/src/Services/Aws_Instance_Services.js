@@ -8,9 +8,8 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import logo from "../images/aws-logo.jpg";
-import {toast} from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css'
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 //import css
 import "../styles/check.css";
@@ -80,8 +79,7 @@ const rds_storage = [
   "General Purpose SSD (gp3) - Throughput",
 ];
 //static region
-const regions = ['us-south','us-north','us-east'];
-
+const regions = ["us-south", "us-north", "us-east"];
 
 function getStyles(name, personName, theme) {
   return {
@@ -96,90 +94,100 @@ const MultipleSelect = (props) => {
   //props
   let { cloud } = props.cloud;
 
-  const [service, setService] = React.useState('');
+  const [service, setService] = React.useState("");
   const [os, setOs] = React.useState("");
   const [instance, setInstance] = React.useState("");
   const [vcpu, setVcpu] = React.useState("");
   const [storage, setStorage] = React.useState("");
   const [ram, setRam] = React.useState("");
-  const [region,setRegion]=useState('');
+  const [region, setRegion] = useState("");
 
   //collect data
-  const [users,setUsers] = useState();
-  const [hours , setHours] = useState();
-  const [days,setDays] = useState();
-  const [totalcost,setTotalcost] = useState();
-  
-  const [memory,setMemory]=useState([]);
-  const [VCPU , setVCPU] = useState([]);
-    //type of instance assigning
-    // let Instance = "";
-    const [Instance,setINstance] = useState('');
-    let Vcpu = [];
-    let Storage = [];
-  React.useEffect( ()=>{
-    const get=async ()=>{
-      const awsec2 = await axios.get("http://localhost:5000/api/services/get-awsec2")
-      setMemory(awsec2.data.getInstance)
-      setVCPU(awsec2.data.getInstance)
+  const [users, setUsers] = useState();
+  const [hours, setHours] = useState();
+  const [days, setDays] = useState();
+  const [totalcost, setTotalcost] = useState();
 
-     
-    }
-    get();
-  },[]);
-
-  React.useEffect(()=>{
-    const getinstance=async ()=>{
-     console.log('accessing')
-    if(vcpu !=='' && ram !==''){
-      const singleInstance = await axios.post("http://localhost:5000/api/services/get-singleec2",
-        { 
-          memory:ram,
-          vcpu:vcpu,
-        }
+  const [memory, setMemory] = useState([]);
+  const [VCPU, setVCPU] = useState([]);
+  //type of instance assigning
+  // let Instance = "";
+  const [Instance, setINstance] = useState([]);
+  let Vcpu = [];
+  let Storage = [];
+  React.useEffect(() => {
+    const get = async () => {
+      if(service ==='') return;
+      const awsec2 = await axios.post(
+        "http://localhost:5000/api/services/get-awsec2",
+        {service:service}
       );
-      if(singleInstance.data.success){
-        let data = singleInstance.data.getSingle.instanceName;
-        setINstance(data);
+      setMemory(awsec2.data.getInstance);
+      setVCPU(awsec2.data.getInstance);
+    };
+    get();
+  }, [service]);
+
+  React.useEffect(() => {
+    const getinstance = async () => {
+      console.log("accessing");
+      if (vcpu !== "" && ram !== "") {
+        const singleInstance = await axios.post(
+          "http://localhost:5000/api/services/get-singleec2",
+          {
+            service:service,
+            memory: ram,
+            vcpu: vcpu,
+          }
+        );
+        if (singleInstance.data.success) {
+            let data = singleInstance.data.getSingle;
+            console.log(data)
+            setINstance(data);
+            // console.log()
+        } else {
+          toast.error(singleInstance.data.message);
+        }
       }
-      else{
-        toast.error(singleInstance.data.message)
-      }
-     
-    }
-    
-    }
-    
-  getinstance();
-  
-},[ram,vcpu]);
+    };
+
+    getinstance();
+  }, [ram, vcpu]);
 
   //for running a map function
   const keys = [...Array(10).keys()];
 
   //dropdown instances
   const options = [
-    { label: "EC2", value:"EC2"  },
-    { label: "RDS", value:"RDS" },
-    { label: "Dynamo DB", value: "Dynamo DB" },
-    { label: "IAM", value: "IAM" },
-    { label: "Sequirty hub", value:"Sequirty hub"},
-    { label: "Elastic cache", value:"Elastic cache" },
-    { label: "Lambda", value: "Lambda" },
-    { label: "Elastic benstalk", value: "Elastic benstalk" },
+    { label: "Amazon EC2", value: "Amazon EC2" },
+    { label: "Amazon S3", value: "Amazon S3" },
+    { label: "Amazon RDS", value: "Amazon RDS" },
+    { label: "Amazon DynamoDB", value: "Amazon DynamoDB" },
+    { label: "AWS Lambda", value: "AWS Lambda" },
+    { label: "Amazon CloudWatch", value: "Amazon CloudWatch" },
+    { label: "Amazon VPC", value: "Amazon VPC" },
+    { label: "AWS IAM", value: "AWS IAM" },
+    {label:"Amazon API Gateway",value:"Amazon API Gateway"},
+    {label:"Amazon Route 53",value:"Amazon Route 53"},
+    {label:"AWS Elastic Beanstalk",value:"AWS Elastic Beanstalk"},
+    {label:"Amazon SNS",value:"Amazon SNS"},
+    {label:"Amazon SQS",value:"Amazon SQS"},
+    {label:"AWS CloudFormation",value:"AWS CloudFormation"},
+    {label:"AWS Glue",value:"AWS Glue"},
+    {label:"AWS Step Functions",value:"AWS Step Functions"},
+    {label:"Amazon Redshift",value:"Amazon Redshift"}
   ];
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  
-  const [service_list,setService_list] = useState([]);
+  const [service_list, setService_list] = useState([]);
   // Handle the checkbox change
   const handleCheckboxChange = (e, value) => {
     if (e.target.checked) {
       setSelectedOptions([...selectedOptions, value]);
-      setService(value)
+      setService(value);
     } else {
       setSelectedOptions(selectedOptions.filter((item) => item !== value));
     }
@@ -189,58 +197,77 @@ const MultipleSelect = (props) => {
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
- 
-  const user = localStorage.getItem('auth');
+  const user = localStorage.getItem("auth");
+
   const userParsed = JSON.parse(user);
   const userEmail = userParsed.user.emailAddress;
- 
 
   //saving catalogs
-  const [catalog,setCatalog] = useState([]);
+  const [catalog, setCatalog] = useState([]);
   //save configurations
   const handleSaveConfigurations = async (e) => {
     e.preventDefault();
     //call api
     try {
-      const user = await axios.post("http://localhost:5000/api/auth/get-user",{
-        emailAddress:userEmail,
-      })
-      if(edit === true){
-        const update_document = await axios.post(`http://localhost:5000/api/services/awsEc2config_update/${edit_id}`,{
-          service,
-          os,
-          vcpu,
-          ram,
-          storage,
-          instance,
-          region,
-          days,
-          hours,
-          userId:user.data.user._id,
-        })
-        if(update_document.data.success){
-          toast.success(update_document.data.message)
-        }
-        else{
-          toast.error(update_document.data.message)
+      const user = await axios.post("http://localhost:5000/api/auth/get-user", {
+        emailAddress: userEmail,
+      });
+      if (edit === true) {
+        const update_document = await axios.post(
+          `http://localhost:5000/api/services/awsEc2config_update/${edit_id}`,
+          {
+            service,
+            os,
+            vcpu,
+            ram,
+            storage,
+            instance,
+            region,
+            days,
+            hours,
+            users,
+            userId: user.data.user._id,
+          }
+        );
+        if (update_document.data.success) {
+          toast.success(update_document.data.message);
+        } else {
+          toast.error(update_document.data.message);
         }
 
-        let id = edit_id
-        let updated_catalog = catalog.map(item=> item.id === id ? {...item,service,os,vcpu,storage,ram,Instance,region,days,hours,id} : item);
+        let id = edit_id;
+        let updated_catalog = catalog.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                service,
+                os,
+                vcpu,
+                storage,
+                ram,
+                instance,
+                region,
+                days,
+                hours,
+                users,
+                id,
+              }
+            : item
+        );
         setCatalog(updated_catalog);
         // setService_list(updated_catalog.service);
         // setService('');
-        setOs('');
-        setVcpu('');
-        setStorage('');
-        setRam('');
-        setINstance('');
-        setRegion('')
-        setDays('')
-        setHours('')
+        setOs("");
+        setVcpu("");
+        setStorage("");
+        setRam("");
+        setInstance("");
+        setRegion("");
+        setDays("");
+        setHours("");
+        setUsers("");
         setEdit(!edit);
-      }
-      else if( edit === false){
+      } else if (edit === false) {
         const res = await axios.post(
           "http://localhost:5000/api/services/awsconfig",
           {
@@ -253,101 +280,107 @@ const MultipleSelect = (props) => {
             region,
             days,
             hours,
-            userId:user.data.user._id,
+            users,
+            userId: user.data.user._id,
           }
         );
-        if(res.data.success){
-          toast.success(res.data.message)
+        if (res.data.success) {
+          toast.success(res.data.message);
+        } else {
+          toast.error(res.data.message);
         }
-        else{
-          toast.error(res.data.message)
-        }
-
 
         let id = res.data.config._id;
-        setCatalog([...catalog,{service,os,vcpu,storage,ram,Instance,region,days,hours,id}])
+        setCatalog([
+          ...catalog,
+          {
+            service,
+            os,
+            vcpu,
+            storage,
+            ram,
+            instance,
+            region,
+            days,
+            hours,
+            users,
+            id,
+          },
+        ]);
         // service_list(service);
-        setOs('');
-        setVcpu('');
-        setStorage('');
-        setRam('');
-        setINstance('');
-        setRegion('')
-        setDays('')
-        setHours('')
+        setOs("");
+        setVcpu("");
+        setStorage("");
+        setRam("");
+        setInstance("");
+        setRegion("");
+        setDays("");
+        setHours("");
+        setUsers('');
       }
-      
-     
-    } 
-    
-    catch (error) {
+    } catch (error) {
       console.log(error);
     }
-   
   };
 
-
-  
-
-  const handleDelete=async(e,instance)=>{
+  const handleDelete = async (e, instance) => {
     e.preventDefault();
-    const {service,os,vcpu,storage,ram,userId,id} = instance;
-    setCatalog((prevItems)=>prevItems.filter(item=>item.id !==instance.id))
-    
-   
-    try{
-      const user = await axios.post("http://localhost:5000/api/auth/get-user",{
-        emailAddress:userEmail,
+    const { service, os, vcpu, storage, ram, userId, id } = instance;
+    setCatalog((prevItems) =>
+      prevItems.filter((item) => item.id !== instance.id)
+    );
+
+    try {
+      const user = await axios.post("http://localhost:5000/api/auth/get-user", {
+        emailAddress: userEmail,
       });
-      const res = await axios.delete(`http://localhost:5000/api/services/awsconfig_delete/${id}`)
+      const res = await axios.delete(
+        `http://localhost:5000/api/services/awsconfig_delete/${id}`
+      );
+    } catch (error) {
+      console.log(error);
     }
-    catch(error){
-      console.log(error)
-    }
+  };
 
-  }
-
-
-  const [edit,setEdit]=useState(false);
-  const [edit_id,setEdit_id] = useState('');
-  const handleEdit=async (e,instance)=>{
+  const [edit, setEdit] = useState(false);
+  const [edit_id, setEdit_id] = useState("");
+  const handleEdit = async (e, instance) => {
     e.preventDefault();
-    console.log(instance)
+    console.log(instance);
     setEdit(true);
     setService(instance.service);
     setOs(instance.os);
     setVcpu(instance.vcpu);
     setRam(instance.ram);
     setStorage(instance.storage);
-    setINstance(instance.Instance);
-    setRegion(instance.region)
-    setDays(instance.days)
-    setHours(instance.hours)
-    setEdit_id(instance.id)
-    
- }
+    setInstance(instance.Instance);
+    setRegion(instance.region);
+    setDays(instance.days);
+    setHours(instance.hours);
+    setUsers(instance.users)
+    setEdit_id(instance.id);
+  };
 
- const calculateCost=(e)=>{
-      e.preventDefault();
- }
+  const calculateCost = (e) => {
+    e.preventDefault();
+  };
 
- const handleConfirm=async (e)=>{
-      e.preventDefault();
-      // try{
-      //   const data = await axios.post('http://localhost:5000/api/services/python/aws',{
-      //   service,
-      //   users,
-      //   hours,
-      //   days,
-      // })}
-      // catch(error){
-      //   console.log(error)
-      // }
-      // setUsers('');
-      // setHours('');
-      // setDays('');
- }
-
+  const handleConfirm = async (e) => {
+    e.preventDefault();
+    // try{
+    //   const data = await axios.post('http://localhost:5000/api/services/python/aws',{
+    //   service,
+    //   users,
+    //   hours,
+    //   days,
+    // })}
+    // catch(error){
+    //   console.log(error)
+    // }
+    // setUsers('');
+    // setHours('');
+    // setDays('');
+  };
 
   return (
     <>
@@ -364,7 +397,6 @@ const MultipleSelect = (props) => {
           <div className="col-12 col-ms-12 col-md-12 col-lg-4 ">
             <div className="instance ">
               <FormControl sx={{ m: 1, width: 300 }}>
-                
                 <div className="dropdown-container">
                   <div
                     className="dropdown-header w-100"
@@ -487,18 +519,15 @@ const MultipleSelect = (props) => {
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-                  {memory.map(
-                    (memory) =>
-                       (
-                        <MenuItem
-                          key={memory._id}
-                          value={memory.memory}
-                          // style={getStyles(name, personName, theme)}
-                        >
-                          {memory.memory}
-                        </MenuItem>
-                      )
-                  )}
+                  {memory.map((memory) => (
+                    <MenuItem
+                      key={memory._id}
+                      value={memory.memory}
+                      // style={getStyles(name, personName, theme)}
+                    >
+                      {memory.memory}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </div>
@@ -551,27 +580,29 @@ const MultipleSelect = (props) => {
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-                  {/* {Instance.map((name) => ( */}
-                    <MenuItem
-                      className="menuitem"
-                      // key={name}
-                      value={Instance}
-                      // style={getStyles(name, personName, theme)}
-                    >
-                      {Instance}
-                    </MenuItem>
-                  {/* ))} */}
+                   {Instance.map((name) => ( 
+                  <MenuItem
+                    className="menuitem"
+                    // key={name}
+                    value={name.instanceName}
+                    // style={getStyles(name, personName, theme)}
+                  >
+                    {name.instanceName}
+                  </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </div>
-              
           </div>
         </div>
         {/* row 4 */}
         <div className="row  d-flex flex-row justify-content-center  py-2">
-              <div className="col-12 col-ms-12 col-md-12 col-lg-4"><div className="instance ">
+          <div className="col-12 col-ms-12 col-md-12 col-lg-4">
+            <div className="instance ">
               <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="demo-multiple-name-label">Select Region</InputLabel>
+                <InputLabel id="demo-multiple-name-label">
+                  Select Region
+                </InputLabel>
                 <Select
                   className="w-100"
                   labelId="demo-multiple-name-label"
@@ -582,53 +613,80 @@ const MultipleSelect = (props) => {
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-                  {regions.map((region)=>(
+                  {regions.map((region) => (
                     <MenuItem
-                    key={region}
-                    value={region}
-                    // style={getStyles(name, personName, theme)}
-                
-                  >
-                  {region}
-                  </MenuItem>
-                  )
-                  )}
+                      key={region}
+                      value={region}
+                      // style={getStyles(name, personName, theme)}
+                    >
+                      {region}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
-            </div></div>
-              <div className="col-12 col-ms-12 col-md-12 col-lg-4"> <div className="instance">
-              <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="no_days" style={{fontsize:'22px'}}>Enter Number of Days</InputLabel>
-                <Input labelId='no_days' id="days" type='Number' value={days}
-                  onChange={(e)=>setDays(e.target.value)}></Input>
-                
-              </FormControl>
-            </div></div>
-              <div className="col-12 col-ms-12 col-md-12 col-lg-4"><div className="instance">
-              <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="no_hours" style={{fontsize:'22px'}}>Enter Number of Hours/day</InputLabel>
-                <Input labelId='no_hours' id="hours" type='Number' value={hours}
-                onChange={(e)=>setHours(e.target.value)}></Input>
-                
-              </FormControl>
-            </div></div>
             </div>
+          </div>
+          <div className="col-12 col-ms-12 col-md-12 col-lg-4">
+            {" "}
+            <div className="instance">
+              <FormControl sx={{ m: 1, width: 300 }}>
+                <InputLabel id="no_days" style={{ fontsize: "22px" }}>
+                  Enter Number of Days
+                </InputLabel>
+                <Input
+                  labelId="no_days"
+                  id="days"
+                  type="Number"
+                  value={days}
+                  onChange={(e) => setDays(e.target.value)}
+                ></Input>
+              </FormControl>
+            </div>
+          </div>
+          <div className="col-12 col-ms-12 col-md-12 col-lg-4">
+            <div className="instance">
+              <FormControl sx={{ m: 1, width: 300 }}>
+                <InputLabel id="no_hours" style={{ fontsize: "22px" }}>
+                  Enter Number of Hours/day
+                </InputLabel>
+                <Input
+                  labelId="no_hours"
+                  id="hours"
+                  type="Number"
+                  value={hours}
+                  onChange={(e) => setHours(e.target.value)}
+                ></Input>
+              </FormControl>
+            </div>
+          </div>
+        </div>
 
         {/* row 4 for submitting intance and its configurations */}
         <div className="row  d-flex flex-row justify-content-center m-2 text-center">
-          <form onSubmit={handleSaveConfigurations}> 
+        <div className="instance mb-2">
+              <FormControl sx={{ m: 1, width: 300 }}>
+                <InputLabel id="no_users" style={{ fontsize: "22px" }}>
+                  Enter Number of IAM users
+                </InputLabel>
+                <Input
+                  labelId="no_users"
+                  id="users"
+                  type="Number"
+                  value={users}
+                  onChange={(e) => setUsers(e.target.value)}
+                ></Input>
+              </FormControl>
+            </div>
+          <form onSubmit={handleSaveConfigurations}>
             <button
               type="submit"
               className="btn btn-primary"
               style={{ width: "250px" }}
-              
             >
-              {edit === false ? 'Submit' : 'Update'}
+              {edit === false ? "Submit" : "Update"}
             </button>
           </form>
         </div>
-
-       
       </div>
       <div className="container-fluid my-2 p-2">
         <div className="row instance-calculate d-flex justify-content-center">
@@ -642,16 +700,16 @@ const MultipleSelect = (props) => {
                 </tr>
               </thead>
               <tbody>
-                {catalog.map((instance)=>(
-                    <tr>
-                    <td>Aws({instance.Instance})</td>
+                {catalog.map((instance) => (
+                  <tr>
+                    <td >{instance.service } ({instance.instance})</td>
                     <td>
                       <div className="user_modification d-flex flex-row justify-content-start text-start">
                         <button
                           type="button"
                           className="btn btn-primary mx-1"
                           style={{ width: "100px" }}
-                          onClick={(e)=>handleEdit(e,instance)}
+                          onClick={(e) => handleEdit(e, instance)}
                         >
                           Edit
                         </button>
@@ -659,72 +717,50 @@ const MultipleSelect = (props) => {
                           type="button"
                           className="btn btn-danger mx-1"
                           style={{ width: "100px" }}
-                          onClick={(e)=>handleDelete(e,instance)}
+                          onClick={(e) => handleDelete(e, instance)}
                         >
-                        Delete
-
+                          Delete
                         </button>
                       </div>
                     </td>
                   </tr>
                 ))}
-                
-                <tr>
-                  {/* <td>Aws</td>
-                  <td>
-                    <div className="user_modification d-flex flex-row justify-content-start text-start">
-                      <button
-                        type="button"
-                        className="btn btn-primary mx-1"
-                        style={{ width: "100px" }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-danger mx-1"
-                        style={{ width: "100px" }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td> */}
-                </tr>
+
                 {/* selectin Number of Days,Hours,Users */}
                 <tr>
                   <td colSpan={2}>
                     <div className="selection">
                       {/* <form> */}
-                        <div className="form-group">
-                          <label for="no_users">Enter No of IAM Users</label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            id="no_users"
-                            placeholder="Enter Users"
-                            value={users}
-                            onChange={(e)=>setUsers(e.target.value)}
-                          />
-                        </div>
-                        <div className="form-group p-2 text-center">
-                          <button
-                            type="button"
-                            className="btn btn-primary mx-3"
-                            onClick={calculateCost}
-                          >
-                            Calculte Cost
-                          </button>
-                          <span
-                            style={{
-                              fontsize: "22px",
-                              fontWeight: "bold",
-                              fontFamily: "inherit",
-                            }}
-                            className="my-1"
-                          >
-                            Total Cost:100$
-                          </span>
-                        </div>
+                      {/* <div className="form-group">
+                        <label for="no_users">Enter No of IAM Users</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          id="no_users"
+                          placeholder="Enter Users"
+                          value={users}
+                          onChange={(e) => setUsers(e.target.value)}
+                        />
+                      </div> */}
+                      <div className="form-group p-2 text-center">
+                        <button
+                          type="button"
+                          className="btn btn-primary mx-3"
+                          onClick={calculateCost}
+                        >
+                          Calculte Cost
+                        </button>
+                        <span
+                          style={{
+                            fontsize: "22px",
+                            fontWeight: "bold",
+                            fontFamily: "inherit",
+                          }}
+                          className="my-1"
+                        >
+                          Total Cost:100$
+                        </span>
+                      </div>
                       {/* </form> */}
                     </div>
                   </td>

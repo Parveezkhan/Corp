@@ -215,10 +215,12 @@ const [searchTerm, setSearchTerm] = useState('');
   const [isSliderOpen, setIsSliderOpen] = useState(true); 
  
   // Filter cards based on search term 
-  console.log(cardData)
   const filteredCards = cardData.filter(card => 
     card.service.toLowerCase().includes(searchTerm.toLowerCase()) 
   ); 
+  const handleProceed=(e)=>{
+    
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -375,12 +377,15 @@ const [searchTerm, setSearchTerm] = useState('');
       <div className='slider-container'> 
         {filteredCards.map(card => ( 
           <div class="card cardd" style={{width: "18rem;"}}>
-          <div class="card-body">
+            <img class="card-img-top" src={aws} alt="Card image cap"></img>
+          <div class="card-body text-start">
             <h5 class="card-title"><span>Service: </span>{card.service}</h5>
-            <p class="card-text"><span>Instance: </span>{card.instance}<br/><span>Operating System: </span>{card.os}<br/><span>Ram: </span>{card.ram}<br/><span>Storage: </span>{card.storage}GB.</p>
-            <Link href="#" class="btn btn-primary">Process</Link>
+            {/* <p class="card-text"><span>Instance: </span>{card.instance}<br/><span>Operating System: </span>{card.os}<br/><span>Ram: </span>{card.ram}<br/><span>Storage: </span>{card.storage}GB.</p> */}
+            <p className='card-text'><span>$100</span></p>
+            <Link to="#" class="btn btn-primary" onClick={handleProceed}>Proceed</Link>
           </div>
         </div>
+        
         ))} 
       </div> 
     </div> 
