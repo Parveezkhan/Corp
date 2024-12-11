@@ -28,7 +28,7 @@
 
 }
 .configurations{
-    height:400px;
+    /* height:400px; */
     width: 30%;
     font-family: 'poppins';
 }
@@ -40,3 +40,19 @@
     height: 400px;
     width: 60%;
 }
+@media only screen and (max-width: 768px)  {
+    .nav-settings{
+        display:flex;
+        flex-direction: column;
+    }
+    
+}
+@media only screen and (min-width: 768px) {
+    .nav-settings{
+        display:flex;
+        flex-direction: row;
+    }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+/* @media only screen and (min-width: 768px) {...} */

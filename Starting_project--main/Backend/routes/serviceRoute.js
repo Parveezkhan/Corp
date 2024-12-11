@@ -7,6 +7,7 @@ const {
     awsEC2config_get,
     awsEc2config_update,
     awsGetConfigs,
+    awsGetConfigOnId,
 
  } = require("../controllers/awsec2Controller");
  
@@ -25,6 +26,7 @@ router.post("/awsconfig_get/:id",awsEC2config_get);
 router.post("/awsEc2config_update/:id",awsEc2config_update);
 router.delete('/awsconfig_delete/:id',awsEC2config_delete);
 router.get('/get_awsConfig',awsGetConfigs);
+router.post('/get_awsConfigOnId',awsGetConfigOnId);
 
 router.post('/python/aws', (req, res) => {
   const {services,users,days,hours} = req.body;

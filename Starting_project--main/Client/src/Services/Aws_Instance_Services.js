@@ -1,5 +1,6 @@
 import * as React from "react";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -142,7 +143,6 @@ const MultipleSelect = (props) => {
         );
         if (singleInstance.data.success) {
             let data = singleInstance.data.getSingle;
-            console.log(data)
             setINstance(data);
             // console.log()
         } else {
@@ -181,15 +181,42 @@ const MultipleSelect = (props) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selectedList,setSelectedList] = useState([]);
 
   const [service_list, setService_list] = useState([]);
+  const location = useLocation();
+
+// initialize state from storage on mount
+const groups = JSON.parse(sessionStorage.getItem('groups'));
+  // return JSON.parse(groups) ?? {};
+const [catalog, setCatalog] = useState([]
+  // () => {
+  // const groups = sessionStorage.getItem('groups');
+  // return JSON.parse(groups) ?? {};
+// }
+);
+
+// persist importedGroups state to storage
+React.useEffect(() => {
+  sessionStorage.setItem('groups', JSON.stringify(catalog));
+}, [catalog]);
+
+// update local state when location.groupsname updates
+React.useEffect(() => {
+  if (location.groupsname) {
+    setCatalog(location.groupsname);
+  }
+}, [location.groupsname]);
   // Handle the checkbox change
   const handleCheckboxChange = (e, value) => {
     if (e.target.checked) {
       setSelectedOptions([...selectedOptions, value]);
+      setSelectedList([...selectedList,value])
       setService(value);
-    } else {
+    } 
+    else {
       setSelectedOptions(selectedOptions.filter((item) => item !== value));
+      setSelectedList(selectedList.filter((item) => item !== value))
     }
   };
   // Filter options based on the search query
@@ -203,7 +230,8 @@ const MultipleSelect = (props) => {
   const userEmail = userParsed.user.emailAddress;
 
   //saving catalogs
-  const [catalog, setCatalog] = useState([]);
+  // const [catalog, setCatalog] = useState([]);
+  console.log(catalog)
   //save configurations
   const handleSaveConfigurations = async (e) => {
     e.preventDefault();
@@ -212,6 +240,7 @@ const MultipleSelect = (props) => {
       const user = await axios.post("http://localhost:5000/api/auth/get-user", {
         emailAddress: userEmail,
       });
+      
       if (edit === true) {
         const update_document = await axios.post(
           `http://localhost:5000/api/services/awsEc2config_update/${edit_id}`,
@@ -267,7 +296,8 @@ const MultipleSelect = (props) => {
         setHours("");
         setUsers("");
         setEdit(!edit);
-      } else if (edit === false) {
+      } 
+      else if (edit === false) {
         const res = await axios.post(
           "http://localhost:5000/api/services/awsconfig",
           {
@@ -282,8 +312,12 @@ const MultipleSelect = (props) => {
             hours,
             users,
             userId: user.data.user._id,
+            catalog,
+            
           }
         );
+        localStorage.setItem('catalog',JSON.stringify(catalog))
+        console.log(res)
         if (res.data.success) {
           toast.success(res.data.message);
         } else {
@@ -307,6 +341,7 @@ const MultipleSelect = (props) => {
             id,
           },
         ]);
+        
         // service_list(service);
         setOs("");
         setVcpu("");
@@ -317,8 +352,12 @@ const MultipleSelect = (props) => {
         setDays("");
         setHours("");
         setUsers('');
+        // let checkbox = document.getElementById("reset_checkbox");
+        //  checkbox.value = ""
+        setSelectedOptions([])
       }
-    } catch (error) {
+    } 
+    catch (error) {
       console.log(error);
     }
   };
@@ -380,6 +419,8 @@ const MultipleSelect = (props) => {
     // setUsers('');
     // setHours('');
     // setDays('');
+
+    
   };
 
   return (
@@ -417,11 +458,13 @@ const MultipleSelect = (props) => {
                       />
 
                       {/* Checkboxes */}
-                      <div className="checkbox-list">
+                      <div className="checkbox-list" >
                         {filteredOptions.map((option) => (
                           <label key={option.value} className="checkbox-item">
                             <input
+                              
                               type="checkbox"
+                              id='reset_checkbox'
                               value={option.value}
                               checked={selectedOptions.includes(option.value)}
                               onChange={(e) =>

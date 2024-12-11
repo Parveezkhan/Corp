@@ -13,6 +13,10 @@ const autoUsers = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "randomUser",
     },
+    catalogInstance:{
+        type:String,
+        required:true,
+    },
     role:{
         type:String,
         default:'user'

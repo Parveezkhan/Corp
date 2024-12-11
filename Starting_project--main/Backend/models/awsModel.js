@@ -1,7 +1,8 @@
 const mongoose = require('mongoose')
 
 const awsEC2Schema = new mongoose.Schema({
-     instanceName:{
+   
+  instanceName:{
         type:String,
         required:true,
      },

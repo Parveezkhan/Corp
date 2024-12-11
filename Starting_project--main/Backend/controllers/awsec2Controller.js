@@ -28,6 +28,7 @@ const awsEC2Get = async (req, res) => {
 };
 const awsGetConfigs = async (req,res) =>{
 
+
   try{
     const configs = await awsConfigModel.find({});
     if(!configs){
@@ -51,6 +52,32 @@ const awsGetConfigs = async (req,res) =>{
     })
   }
 
+}
+const awsGetConfigOnId = async (req,res) =>{
+  
+  try{
+    const {adminId} = req.body;
+    const configs = await awsConfigModel.find({userId:adminId});
+    if(!configs){
+      return res.send({
+        success:false,
+        message:"Could not fetch configurations"
+      })
+    }
+    return res.status(200).send({
+      success:true,
+      message:"Accessed Successfully",
+      configs,
+    })
+  }
+  catch(error){
+    console.log(error);
+    return res.status(500).send({
+      success:false,
+      message:"Could not access the configurations",
+      error,
+    })
+  }
 }
 const awsSingleInstance = async (req,res) =>{
 
@@ -87,9 +114,11 @@ const awsSingleInstance = async (req,res) =>{
 }
 
 const awsEC2config = async (req, res) => {
-
+  console.log('connecting')
+  console.log(req.body)
   try {
-    const { service, os, vcpu, ram,storage, instance,region,days,hours,users ,userId} = req.body;
+    const { service, os, vcpu, ram,storage, instance,region,days,hours,users ,userId,catalog} = req.body;
+    console.log(catalog)
     if (!service) return res.send({ message: "Service is required.." });
     if (!os) return res.send({ message: "os is required.." });
     if (!vcpu) return res.send({ message: "vcpu is required.." });
@@ -102,19 +131,19 @@ const awsEC2config = async (req, res) => {
     if (!users) return res.send({ message: "Users is required.." });
     if(!userId) return res.send({message:"userId is required.."})
 
-    const config = await new awsConfigModel({
-          service,
-          os,
-          vcpu,
-          ram,
-          storage,
-          instance,
-          region,
-          days,
-          hours,
-          users,
-      userId,
-    }).save();
+  //   const config = await new awsConfigModel({userId:userId,config:{
+  //         service,
+  //         os,
+  //         vcpu,
+  //         ram,
+  //         storage,
+  //         instance,
+  //         region,
+  //         days,
+  //         hours,
+  //         users,
+  // }}).save();
+  const config = await new awsConfigModel({userId:userId,config:catalog}).save();
 
     res.status(201).send({
       success: true,
@@ -160,6 +189,7 @@ const awsEC2config_get = async(req,res)=>{
 }
 
 const awsEc2config_update = async (req,res)=>{
+
     try{
       const {service, os, vcpu, ram,storage, instance,region,days,hours,users ,userId
       } = req.body
@@ -252,4 +282,5 @@ module.exports = {
   awsEC2config_get,
   awsEc2config_update,
   awsGetConfigs,
+  awsGetConfigOnId,
  };

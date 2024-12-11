@@ -62,6 +62,7 @@ const autoCreateUsers = async (req, res) => {
         userName: users[i].userName,
         password: users[i].password,
         adminId: users[i].adminId,
+        catalogInstance:users[i].catalogInstance
       }).save();
     }
 
