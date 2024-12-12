@@ -5,7 +5,6 @@ const awsConfigSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "randomUser",
   },
-  config:[{
      
      service: {
        type: String,
@@ -48,7 +47,7 @@ const awsConfigSchema = new mongoose.Schema({
      required:true,
     },
    
-  }]},{timestamps:true});
+  },{timestamps:true});
 
 const awsConfigModel = mongoose.model("awsConfigSchema", awsConfigSchema);
 

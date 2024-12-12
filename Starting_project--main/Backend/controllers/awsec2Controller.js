@@ -1,5 +1,6 @@
 const awsEC2Model = require("../models/awsModel");
 const awsConfigModel = require("../models/awsConfigModel");
+const confirmAwsModel = require('../models/confirmAwsModel')
 
 const awsEC2Get = async (req, res) => {
   try{
@@ -131,19 +132,20 @@ const awsEC2config = async (req, res) => {
     if (!users) return res.send({ message: "Users is required.." });
     if(!userId) return res.send({message:"userId is required.."})
 
-  //   const config = await new awsConfigModel({userId:userId,config:{
-  //         service,
-  //         os,
-  //         vcpu,
-  //         ram,
-  //         storage,
-  //         instance,
-  //         region,
-  //         days,
-  //         hours,
-  //         users,
-  // }}).save();
-  const config = await new awsConfigModel({userId:userId,config:catalog}).save();
+    const config = await new awsConfigModel({
+         userId,
+          service,
+          os,
+          vcpu,
+          ram,
+          storage,
+          instance,
+          region,
+          days,
+          hours,
+          users,
+  }).save();
+  // const config = await new awsConfigModel({userId:userId,config:catalog}).save();
 
     res.status(201).send({
       success: true,
@@ -251,27 +253,67 @@ const awsEC2config_delete = async(req,res)=>{
     const id = req.params['id'];
     if(!id) return res.send({message:"Id is required"})
     
-    const res = await awsConfigModel.findByIdAndDelete({_id:id});
+    console.log(id)
+    const deleteResult  = await awsConfigModel.findByIdAndDelete({_id:id});
     if(!res){
-      res.send({
+      return res.send({
         success:false,
         message:'The instance id is not matched..'
       })
     }
-    res.status(200).send({
+    return res.status(200).send({
       success:true,
       message:"The document deleted successfully..",
-      res
+      deleteResult,
     })
   }
   
   catch(error){
-       res.status(500).send({
+      return res.status(500).send({
         success:false,
         message:"The document cannot be deleted",
         error,
        })
   }
+}
+
+const confirmawsmodel = async(req,res)=>{
+  try {
+    const { catalogContainer } = req.body;
+  
+    // Check if catalog exists and return early if not
+    if (!catalogContainer) {
+      return res.status(400).send("Catalog is required"); // Added return to stop further execution
+    }
+    // Create the catalog
+    const createCatalog = await new confirmAwsModel({
+      adminId: catalogContainer.userId,
+      serviceAws: catalogContainer.serviceAws,
+    }).save();
+  
+    // If the catalog is not created successfully
+    if (!createCatalog) {
+      return res.status(500).send({
+        success: false,
+        message: "The catalog is not created",
+      });
+    }
+  
+    // If the catalog is created successfully
+    return res.status(200).send({
+      success: true,
+      message: "Successfully catalog added",
+      createCatalog,
+    });
+  } catch (error) {
+    // Handle any error that occurs during the process
+    return res.status(500).send({
+      success: false,
+      message: "Could not store document",
+      error: error.message || error,
+    });
+  }
+  
 }
 
 module.exports = { 
@@ -283,4 +325,5 @@ module.exports = {
   awsEc2config_update,
   awsGetConfigs,
   awsGetConfigOnId,
+  confirmawsmodel,
  };

@@ -118,10 +118,11 @@ const MultipleSelect = (props) => {
   let Storage = [];
   React.useEffect(() => {
     const get = async () => {
-      if(service ==='') return;
+      if (service === "") return;
+      console.log(service);
       const awsec2 = await axios.post(
         "http://localhost:5000/api/services/get-awsec2",
-        {service:service}
+        { service: service }
       );
       setMemory(awsec2.data.getInstance);
       setVCPU(awsec2.data.getInstance);
@@ -136,15 +137,15 @@ const MultipleSelect = (props) => {
         const singleInstance = await axios.post(
           "http://localhost:5000/api/services/get-singleec2",
           {
-            service:service,
+            service: service,
             memory: ram,
             vcpu: vcpu,
           }
         );
         if (singleInstance.data.success) {
-            let data = singleInstance.data.getSingle;
-            setINstance(data);
-            // console.log()
+          let data = singleInstance.data.getSingle;
+          setINstance(data);
+          // console.log()
         } else {
           toast.error(singleInstance.data.message);
         }
@@ -167,56 +168,51 @@ const MultipleSelect = (props) => {
     { label: "Amazon CloudWatch", value: "Amazon CloudWatch" },
     { label: "Amazon VPC", value: "Amazon VPC" },
     { label: "AWS IAM", value: "AWS IAM" },
-    {label:"Amazon API Gateway",value:"Amazon API Gateway"},
-    {label:"Amazon Route 53",value:"Amazon Route 53"},
-    {label:"AWS Elastic Beanstalk",value:"AWS Elastic Beanstalk"},
-    {label:"Amazon SNS",value:"Amazon SNS"},
-    {label:"Amazon SQS",value:"Amazon SQS"},
-    {label:"AWS CloudFormation",value:"AWS CloudFormation"},
-    {label:"AWS Glue",value:"AWS Glue"},
-    {label:"AWS Step Functions",value:"AWS Step Functions"},
-    {label:"Amazon Redshift",value:"Amazon Redshift"}
+    { label: "Amazon API Gateway", value: "Amazon API Gateway" },
+    { label: "Amazon Route 53", value: "Amazon Route 53" },
+    { label: "AWS Elastic Beanstalk", value: "AWS Elastic Beanstalk" },
+    { label: "Amazon SNS", value: "Amazon SNS" },
+    { label: "Amazon SQS", value: "Amazon SQS" },
+    { label: "AWS CloudFormation", value: "AWS CloudFormation" },
+    { label: "AWS Glue", value: "AWS Glue" },
+    { label: "AWS Step Functions", value: "AWS Step Functions" },
+    { label: "Amazon Redshift", value: "Amazon Redshift" },
   ];
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedList,setSelectedList] = useState([]);
+  const [selectedList, setSelectedList] = useState([]);
 
   const [service_list, setService_list] = useState([]);
   const location = useLocation();
 
-// initialize state from storage on mount
-const groups = JSON.parse(sessionStorage.getItem('groups'));
+  // initialize state from storage on mount
+  const groups = JSON.parse(sessionStorage.getItem("groups"));
   // return JSON.parse(groups) ?? {};
-const [catalog, setCatalog] = useState([]
-  // () => {
-  // const groups = sessionStorage.getItem('groups');
-  // return JSON.parse(groups) ?? {};
-// }
-);
 
-// persist importedGroups state to storage
-React.useEffect(() => {
-  sessionStorage.setItem('groups', JSON.stringify(catalog));
-}, [catalog]);
+  const [configModel, setConfigModel] = useState({
+    userId: "",
+    serviceAws: [],
+  });
 
-// update local state when location.groupsname updates
-React.useEffect(() => {
-  if (location.groupsname) {
-    setCatalog(location.groupsname);
-  }
-}, [location.groupsname]);
+  const [catalog, setCatalog] = useState(
+    []
+    // () => {
+    // const groups = sessionStorage.getItem('groups');
+    // return JSON.parse(groups) ?? {};
+    // }
+  );
+
   // Handle the checkbox change
   const handleCheckboxChange = (e, value) => {
     if (e.target.checked) {
       setSelectedOptions([...selectedOptions, value]);
-      setSelectedList([...selectedList,value])
+      setSelectedList([...selectedList, value]);
       setService(value);
-    } 
-    else {
+    } else {
       setSelectedOptions(selectedOptions.filter((item) => item !== value));
-      setSelectedList(selectedList.filter((item) => item !== value))
+      setSelectedList(selectedList.filter((item) => item !== value));
     }
   };
   // Filter options based on the search query
@@ -231,7 +227,7 @@ React.useEffect(() => {
 
   //saving catalogs
   // const [catalog, setCatalog] = useState([]);
-  console.log(catalog)
+  console.log(catalog);
   //save configurations
   const handleSaveConfigurations = async (e) => {
     e.preventDefault();
@@ -240,11 +236,12 @@ React.useEffect(() => {
       const user = await axios.post("http://localhost:5000/api/auth/get-user", {
         emailAddress: userEmail,
       });
-      
+
       if (edit === true) {
         const update_document = await axios.post(
           `http://localhost:5000/api/services/awsEc2config_update/${edit_id}`,
           {
+            userId: user.data.user._id,
             service,
             os,
             vcpu,
@@ -255,11 +252,59 @@ React.useEffect(() => {
             days,
             hours,
             users,
-            userId: user.data.user._id,
           }
         );
         if (update_document.data.success) {
           toast.success(update_document.data.message);
+
+          //update in localStorage
+          // Retrieve the configModel from localStorage or initialize an empty object if it doesn't exist
+          const prevConfigModel = JSON.parse(
+            localStorage.getItem("configModel")
+          ) || { userId: null, serviceAws: [] };
+
+          // Now use the storedConfigModel in your state update function
+          setConfigModel(() => {
+            // Ensure we're working with the current state or the one from localStorage
+            // const currentConfigModel = storedConfigModel.userId
+            //   ? storedConfigModel
+            //   : prevConfigModel;
+
+            // Function to update the serviceAws array by id
+
+            let documentId = update_document.data.update._id;
+            const updateServiceAws = (serviceId, newServiceData) => {
+              return prevConfigModel.serviceAws.map((service) => {
+                if (service.id === serviceId) {
+                  return { ...service, ...newServiceData }; // Update the service object with new data
+                }
+                return service; // Return the service as is if the id doesn't match
+              });
+            };
+
+            // Check if the userId is the same as the one already in the state
+            const updatedConfigModel =
+              prevConfigModel.userId === user.data.user._id
+                ? {
+                    ...prevConfigModel, // Keep the existing config model
+                    serviceAws: updateServiceAws(documentId, {
+                      service: service,
+                    }), // Update only the serviceAws array
+                  }
+                : {
+                    // ...currentConfigModel, // Keep the existing config model
+                    // userId: "fdsafaljf243324234", // Update the userId
+                    // serviceAws: [{ service: "EC2", id: "jdfaalhf4734761234" }], // Set a new serviceAws
+                  };
+
+            // Save the updated configModel to localStorage
+            localStorage.setItem(
+              "configModel",
+              JSON.stringify(updatedConfigModel)
+            );
+
+            return updatedConfigModel; // Return the updated state
+          });
         } else {
           toast.error(update_document.data.message);
         }
@@ -296,11 +341,11 @@ React.useEffect(() => {
         setHours("");
         setUsers("");
         setEdit(!edit);
-      } 
-      else if (edit === false) {
+      } else if (edit === false) {
         const res = await axios.post(
           "http://localhost:5000/api/services/awsconfig",
           {
+            userId: user.data.user._id,
             service,
             os,
             vcpu,
@@ -311,15 +356,40 @@ React.useEffect(() => {
             days,
             hours,
             users,
-            userId: user.data.user._id,
-            catalog,
-            
           }
         );
-        localStorage.setItem('catalog',JSON.stringify(catalog))
-        console.log(res)
+
+        console.log(res);
         if (res.data.success) {
           toast.success(res.data.message);
+          const prevConfigModel =
+            JSON.parse(localStorage.getItem("configModel")) || configModel;
+
+          setConfigModel(() => {
+            // Check if the userId is the same as the one already in the state
+            const updatedConfigModel =
+              prevConfigModel.userId === user.data.user._id
+                ? {
+                    ...prevConfigModel, // Keep the existing config model
+                    serviceAws: [
+                      ...prevConfigModel.serviceAws,
+                      { service: service, id: res.data.config._id },
+                    ], // Update only serviceAws
+                  }
+                : {
+                    ...prevConfigModel, // Keep the existing config model
+                    userId: user.data.user._id, // Update the userId
+                    serviceAws: [{ service: service, id: res.data.config._id }], // Set a new serviceAws
+                  };
+
+            // Save the updated configModel to localStorage
+            localStorage.setItem(
+              "configModel",
+              JSON.stringify(updatedConfigModel)
+            );
+
+            return updatedConfigModel; // Return the updated state
+          });
         } else {
           toast.error(res.data.message);
         }
@@ -341,7 +411,7 @@ React.useEffect(() => {
             id,
           },
         ]);
-        
+
         // service_list(service);
         setOs("");
         setVcpu("");
@@ -351,13 +421,12 @@ React.useEffect(() => {
         setRegion("");
         setDays("");
         setHours("");
-        setUsers('');
+        setUsers("");
         // let checkbox = document.getElementById("reset_checkbox");
         //  checkbox.value = ""
-        setSelectedOptions([])
+        setSelectedOptions([]);
       }
-    } 
-    catch (error) {
+    } catch (error) {
       console.log(error);
     }
   };
@@ -376,6 +445,56 @@ React.useEffect(() => {
       const res = await axios.delete(
         `http://localhost:5000/api/services/awsconfig_delete/${id}`
       );
+      if (res.data.success) {
+        toast.success(res.data.message);
+        // Retrieve the configModel from localStorage or initialize an empty object if it doesn't exist
+        const prevConfigModel = JSON.parse(
+          localStorage.getItem("configModel")
+        ) || { userId: null, serviceAws: [] };
+         console.log(prevConfigModel)
+        // Now use the storedConfigModel in your state update function
+        setConfigModel(() => {
+          // Ensure we're working with the current state or the one from localStorage
+          // const currentConfigModel = storedConfigModel.userId
+          //   ? storedConfigModel
+          //   : prevConfigModel;
+
+          // Function to delete a serviceAws item by id
+          // const deleteServiceAwsById = (serviceId) => {
+          //   return prevConfigModel.serviceAws.filter(
+          //     (service) => service.id !== serviceId
+          //   );
+          // };
+
+          // Check if the userId is the same as the one already in the state
+          // console.log(deleteServiceAwsById(instance.id))
+          
+          const updatedConfigModel =
+          prevConfigModel.userId === user.data.user._id
+              ? {
+                  ...prevConfigModel, // Keep the existing config model
+                  serviceAws: prevConfigModel.serviceAws.filter(
+                    (service) => service.id !== instance.id)         // Delete the serviceAws item with the matching id
+                }
+              : {
+                  ...prevConfigModel, // Keep the existing config model
+                  userId: userId, // Update the userId
+                  serviceAws: [{ service: service, id: instance.id }], // Set a new serviceAws
+                };
+
+          // Save the updated configModel to localStorage
+          console.log(updatedConfigModel)
+          localStorage.setItem(
+            "configModel",
+            JSON.stringify(updatedConfigModel)
+          );
+
+          return updatedConfigModel; // Return the updated state
+        });
+      } 
+      else {
+        toast.error(res.data.message);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -396,7 +515,7 @@ React.useEffect(() => {
     setRegion(instance.region);
     setDays(instance.days);
     setHours(instance.hours);
-    setUsers(instance.users)
+    setUsers(instance.users);
     setEdit_id(instance.id);
   };
 
@@ -406,20 +525,20 @@ React.useEffect(() => {
 
   const handleConfirm = async (e) => {
     e.preventDefault();
-    // try{
-    //   const data = await axios.post('http://localhost:5000/api/services/python/aws',{
-    //   service,
-    //   users,
-    //   hours,
-    //   days,
-    // })}
-    // catch(error){
-    //   console.log(error)
-    // }
-    // setUsers('');
-    // setHours('');
-    // setDays('');
-
+    const catalogContainer = JSON.parse(localStorage.getItem('configModel'))
+    try{
+      const result = await axios.post("http://localhost:5000/api/services/awsconfirm_model",
+        {
+          catalogContainer
+        }
+      )
+      if(result.data.success){
+        localStorage.removeItem('configModel')
+      }
+    }
+    catch(error){
+      console.log(error)
+    }
     
   };
 
@@ -458,13 +577,12 @@ React.useEffect(() => {
                       />
 
                       {/* Checkboxes */}
-                      <div className="checkbox-list" >
+                      <div className="checkbox-list">
                         {filteredOptions.map((option) => (
                           <label key={option.value} className="checkbox-item">
                             <input
-                              
                               type="checkbox"
-                              id='reset_checkbox'
+                              id="reset_checkbox"
                               value={option.value}
                               checked={selectedOptions.includes(option.value)}
                               onChange={(e) =>
@@ -623,15 +741,15 @@ React.useEffect(() => {
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-                   {Instance.map((name) => ( 
-                  <MenuItem
-                    className="menuitem"
-                    // key={name}
-                    value={name.instanceName}
-                    // style={getStyles(name, personName, theme)}
-                  >
-                    {name.instanceName}
-                  </MenuItem>
+                  {Instance.map((name) => (
+                    <MenuItem
+                      className="menuitem"
+                      // key={name}
+                      value={name.instanceName}
+                      // style={getStyles(name, personName, theme)}
+                    >
+                      {name.instanceName}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -706,20 +824,20 @@ React.useEffect(() => {
 
         {/* row 4 for submitting intance and its configurations */}
         <div className="row  d-flex flex-row justify-content-center m-2 text-center">
-        <div className="instance mb-2">
-              <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="no_users" style={{ fontsize: "22px" }}>
-                  Enter Number of IAM users
-                </InputLabel>
-                <Input
-                  labelId="no_users"
-                  id="users"
-                  type="Number"
-                  value={users}
-                  onChange={(e) => setUsers(e.target.value)}
-                ></Input>
-              </FormControl>
-            </div>
+          <div className="instance mb-2">
+            <FormControl sx={{ m: 1, width: 300 }}>
+              <InputLabel id="no_users" style={{ fontsize: "22px" }}>
+                Enter Number of IAM users
+              </InputLabel>
+              <Input
+                labelId="no_users"
+                id="users"
+                type="Number"
+                value={users}
+                onChange={(e) => setUsers(e.target.value)}
+              ></Input>
+            </FormControl>
+          </div>
           <form onSubmit={handleSaveConfigurations}>
             <button
               type="submit"
@@ -745,7 +863,9 @@ React.useEffect(() => {
               <tbody>
                 {catalog.map((instance) => (
                   <tr>
-                    <td >{instance.service } ({instance.instance})</td>
+                    <td>
+                      {instance.service} ({instance.instance})
+                    </td>
                     <td>
                       <div className="user_modification d-flex flex-row justify-content-start text-start">
                         <button
