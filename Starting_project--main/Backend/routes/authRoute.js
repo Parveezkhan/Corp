@@ -7,6 +7,7 @@ const {
   autoCreateUsers,
   getAdminUsers,
   autoDeleteUsers,
+  autoEditUsers,
   
 } = require("../controllers/randomAuthController");
 const { requireSignIn } = require("../middlewares/authMiddleware");
@@ -19,6 +20,7 @@ router.post('/get-user',getUser);
 router.get("sign", requireSignIn);
 router.post('/set_users',autoCreateUsers);
 router.post('/getadminusers',getAdminUsers);
-router.post('/deleteAutoUser',autoDeleteUsers)
+router.post('/deleteAutoUser',autoDeleteUsers);
+router.post('/updateAutoUser',autoEditUsers)
 
 module.exports = router;

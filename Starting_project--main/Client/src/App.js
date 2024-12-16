@@ -30,7 +30,7 @@ function App() {
         <Route path='/account/create_user' element={<PrivateRoute><Account/></PrivateRoute>}></Route>
         <Route path='/account/user_list' element={<PrivateRoute><User_List/></PrivateRoute>}></Route>
         <Route path='/catalogs' element={<PrivateRoute><Catalogs/></PrivateRoute>}></Route>
-        <Route path='/catalog' element={<PrivateRoute><Catalog/></PrivateRoute>}></Route>
+        <Route path='/catalog/:id' element={<PrivateRoute><Catalog/></PrivateRoute>}></Route>
       </Routes>
       
     </Router>

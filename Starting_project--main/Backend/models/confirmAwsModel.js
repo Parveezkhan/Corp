@@ -17,9 +17,15 @@ const confirmAwsSchema = new mongoose.Schema({
             }
         }
     ],
+    catalogName:{
+        type:String,
+        required:true,
+        unique:true,
+    },
     users:{
         type:String,
         // required:true,
+        
     },
     days:{
         type:String,

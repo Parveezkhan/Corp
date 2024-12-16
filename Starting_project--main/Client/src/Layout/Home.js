@@ -7,6 +7,7 @@ import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
+import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -22,6 +23,10 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import Menu from '@mui/material/Menu';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import { Stack } from '@mui/material';
 
 //icons
@@ -46,6 +51,8 @@ import Clouds_card_container from '../Home_Components/Clouds_card_container';
 import Footer from '../Home_Components/Footer';
 
 const drawerWidth = 240;
+
+const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -128,11 +135,22 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 export default function MiniDrawer() {
   const theme = useTheme();
 
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
   //use logcontext
   const [log,setLog] = React.useContext(LogContext);
   const [auth,setAuth]=React.useContext(AuthContext);
 
   const [open, setOpen] = React.useState(false);
+
+  //logout
+  const handleLogout=(e)=>{
+    try{
+      const logout = localStorage.removeItem('auth');
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
 
   React.useEffect((
     ()=>{
@@ -154,12 +172,19 @@ export default function MiniDrawer() {
     setLog(!log);
   }
 
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
   const handleDrawerOpen = () => {
     setOpen(true);
   };
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
   };
 
 const navigate = useNavigate();
@@ -219,12 +244,48 @@ const loggedInAuth =JSON.parse( localStorage.getItem('auth'));
           </IconButton>
           <Typography variant="h6" noWrap component="div" className='w-100 d-flex justify-content-between'>
             <img src={logo} alt='' className='img-fluid img'></img>
-
-            <Link to={log === true ? '/login' : "/"} class="alert-link" className='text-end m-1 '>
-              <button type="button" class="btn btn-primary  " style={{ width: "100px" }} onClick={handleLog}>
-                {log === true ? 'Login' : 'Logout'}
+          <div className='d-flex flex-row mx-4 my-1'>
+            {/* <Link to="/login" class="alert-link" className='text-end mx-4 my-1 '>
+              <button type="button" class="btn btn-primary  " style={{ width: "100px" }}>
+                Login
               </button>
-            </Link>
+            </Link> */}
+
+            <Box sx={{ flexGrow: 0 }}>
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg"  />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: '45px' }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              {settings.map((setting) => (
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <Typography sx={{ textAlign: 'center' }}>
+                  {setting=='Logout' && <Link to={log === true ?'/login': '/'} className="text-decoration-none text-dark" onClick={handleLogout}>{log===true ?'Login' :'Logout'} </Link>}
+                  {setting=='Dashboard' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}
+                  {setting=='Profile' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}
+                  {setting=='Account' && <Link to='/' className="text-decoration-none text-dark">{setting}</Link>}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+          </div>
 
           </Typography>
           {/* <div className="text-right "> */}

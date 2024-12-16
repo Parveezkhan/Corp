@@ -4,6 +4,7 @@ const { hashPassword, comparePassword } = require("../helper/authHelper");
 
 //jsonwebtokens
 const JWT = require("jsonwebtoken");
+const autoUsersModel = require("../models/autoCreatedusers");
 
 const randomRegisterController = async (req, res) => {
   try {
@@ -79,6 +80,46 @@ const autoCreateUsers = async (req, res) => {
     });
   }
 };
+
+const autoEditUsers = async(req,res)=>{
+  try{
+    const {id , userName,password,adminId,catalogInstance,role}=req.body;
+    if(!id)  res.send("Id is required..")
+    if(!userName)  res.send('Username is required')
+    if(!password)  res.send('password is required')
+    if(!adminId)  res.send('adminId is required')
+    if(!catalogInstance)  res.send('catalogInstance is required')
+    if(!role)  res.send('role is required')   
+      console.log(adminId)
+    console.log( req.body)
+    const updateAutoUser = await autoUsersModel.findByIdAndUpdate({_id:id},{
+      userName,
+      password,
+      adminId,
+      catalogInstance,
+      role,
+    })
+    if(!updateAutoUser){
+      return res.send({
+        success:false,
+        message:"Could not update"
+      })
+    }
+    return res.status(200).send({
+      success:true,
+      message:"Successfully updated user",
+      updateAutoUser,
+    })
+  }
+  catch(error){
+    return res.status(500).send({
+      success:false,
+      message:"Could not update user",
+      error,
+    })
+  }
+}
+
 const autoDeleteUsers =async (req,res)=>{
   try{
     const {userId} = req.body;
@@ -244,4 +285,5 @@ module.exports = {
   autoCreateUsers,
   getAdminUsers,
   autoDeleteUsers,
+  autoEditUsers,
 };

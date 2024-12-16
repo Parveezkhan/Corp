@@ -19,7 +19,8 @@ const autoUsers = new mongoose.Schema({
     },
     role:{
         type:String,
-        default:'user'
+        default:'user',
+        required:true,
     },
 },{timestamps:true})
 

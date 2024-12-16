@@ -1,3 +1,6 @@
+*{
+    font-family: "Muli", sans-serif !important;;
+}
 .catalog-container{
     margin-top:62px !important;
     margin-left: 64px !important;
@@ -28,9 +31,10 @@
 
 }
 .configurations{
-    /* height:400px; */
+    max-height:400px;
     width: 30%;
     font-family: 'poppins';
+    overflow-y: scroll;
 }
 .configurations span{
     font-weight: 500;

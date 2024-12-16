@@ -200,11 +200,25 @@ const [cardData,setCardData] = useState([]);
 const [imageinstance,setImageInstance] = useState();
 let image;
 
+const userLocalStorage = JSON.parse(localStorage.getItem('auth'))
+
+
 React.useEffect(()=>{
   const catalogs = async()=>{
-    const cats = await axios.get('http://localhost:5000/api/services/get_awsConfig');
+    try{
+     const user = await axios.post("http://localhost:5000/api/auth/get-user", {
+            emailAddress: userLocalStorage.user.emailAddress,
+          });
+    const cats = await axios.post('http://localhost:5000/api/services/get_awsConfigOnId',
+      {adminId:user.data.user._id}
+    );
     setCardData(cats.data.configs);
     setImageInstance(cats.data.configs.service)
+    }
+    catch(error){
+      console.log(error)
+    }
+    
     
   }
   catalogs();
@@ -216,8 +230,12 @@ const [searchTerm, setSearchTerm] = useState('');
  
   // Filter cards based on search term 
   const filteredCards = cardData.filter(card => 
-    card.service.toLowerCase().includes(searchTerm.toLowerCase()) 
-  ); 
+    // Check if any service inside serviceAws array matches the searchTerm
+    card.serviceAws.some(serviceObj => 
+      serviceObj.service.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+   
   const handleProceed=(e)=>{
     
   }
@@ -379,10 +397,13 @@ const [searchTerm, setSearchTerm] = useState('');
           <div class="card cardd" style={{width: "18rem;"}}>
             <img class="card-img-top" src={aws} alt="Card image cap"></img>
           <div class="card-body text-start">
-            <h5 class="card-title"><span>Service: </span>{card.service}</h5>
+            <h5 class="card-title"><span>Catalog Name: </span>{card.catalogName}</h5>
+            {card.serviceAws.map((service)=>(
+              <h5 class="card-title"><span>Service: </span>{service.service}</h5>
+            ))}
             {/* <p class="card-text"><span>Instance: </span>{card.instance}<br/><span>Operating System: </span>{card.os}<br/><span>Ram: </span>{card.ram}<br/><span>Storage: </span>{card.storage}GB.</p> */}
             <p className='card-text'><span>$100</span></p>
-            <Link to="#" class="btn btn-primary" onClick={handleProceed}>Proceed</Link>
+            <Link to={`/catalog/${card._id}`} class="btn btn-primary" onClick={handleProceed}>Proceed</Link>
           </div>
         </div>
         
@@ -390,6 +411,8 @@ const [searchTerm, setSearchTerm] = useState('');
       </div> 
     </div> 
           </div>
+
+          
         </Typography>
 
        </Box> 

@@ -9,6 +9,8 @@ const {
     awsGetConfigs,
     awsGetConfigOnId,
     confirmawsmodel,
+    getConfirmModelOnId,
+    awsConfigArray,
 
  } = require("../controllers/awsec2Controller");
  
@@ -23,12 +25,14 @@ const {spawn} = require('child_process')
 router.post("/get-awsec2", awsEC2Get);
 router.post('/get-singleec2',awsSingleInstance)
 router.post('/awsconfig',awsEC2config);
-router.post("/awsconfig_get/:id",awsEC2config_get);
+router.post("/awsconfig_get",awsEC2config_get);
 router.post("/awsEc2config_update/:id",awsEc2config_update);
 router.delete('/awsconfig_delete/:id',awsEC2config_delete);
 router.get('/get_awsConfig',awsGetConfigs);
 router.post('/get_awsConfigOnId',awsGetConfigOnId);
-router.post('/awsconfirm_model',confirmawsmodel)
+router.post('/awsconfirm_model',confirmawsmodel);
+router.get('/awsCatalog/:id',getConfirmModelOnId)
+router.post('/awsConfigArray',awsConfigArray)
 
 router.post('/python/aws', (req, res) => {
   const {services,users,days,hours} = req.body;

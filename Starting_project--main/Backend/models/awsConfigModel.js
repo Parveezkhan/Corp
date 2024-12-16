@@ -34,18 +34,18 @@ const awsConfigSchema = new mongoose.Schema({
      type:String,
      required:true,
     },
-    days:{
-     type:Number,
-     required:true,
-    },
-    hours:{
-     type:Number,
-     required:true,
-    },
-    users:{
-     type:Number,
-     required:true,
-    },
+    // days:{
+    //  type:Number,
+    //  required:true,
+    // },
+    // hours:{
+    //  type:Number,
+    //  required:true,
+    // },
+    // users:{
+    //  type:Number,
+    //  required:true,
+    // },
    
   },{timestamps:true});
 

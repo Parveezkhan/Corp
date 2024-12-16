@@ -22,7 +22,7 @@ const User_list = (props) => {
     "#",
     "Admin For User",
     "User Name",
-    "Instance",
+    "Catalog",
     "Role",
     "Edit",
   ]);
@@ -41,6 +41,7 @@ const User_list = (props) => {
   const [editRole,setEditRole]=useState('');
   const [editInstance,setEditinstance]=useState('');
   const [editCategory,setEditCategory]=useState('');
+  const [editUserId,setEditUserId]=useState();
 
   const handleGetinputdata = (e) => {
     e.preventDefault();
@@ -111,7 +112,34 @@ const User_list = (props) => {
     setEditUsername(user.userName)
     setEditPassword(user.password)
     setEditRole(user.role)
+    setEditUserId(user._id)
   };
+
+  const handleSaveChanges=async (e)=>{
+    try{
+      const updateAutoUser = await axios.post('http://localhost:5000/api/auth/updateAutoUser',
+        {
+           id:editUserId ,
+           userName:editUsername,
+           password:editPassword,
+           adminId:adminId,
+           catalogInstance:editCategory,
+           role:editRole,
+        }
+      )
+      
+      if(updateAutoUser.data.success){
+        toast.success(updateAutoUser.data.message)
+      }
+      else{
+        toast.error(updateAutoUser.data.message)
+      }
+    }
+    catch(error){
+      console.log(error)
+    }
+    
+  }
 
   const HandleUsers = async (e) => {
     e.preventDefault();
@@ -222,7 +250,7 @@ const User_list = (props) => {
                       >
                       <option >Select catalog category</option>
                         {configsOnId.map((catalog)=>(
-                          <option value={catalog.instance}>{catalog.instance}</option>
+                          <option value={catalog.catalogName}>{catalog.catalogName}</option>
                         ))}
                       </select>
                       <input
@@ -310,7 +338,7 @@ onClick={(e)=>handleEdit(e,user)}
                       >
                       <option >Select catalog category</option>
                         {configsOnId.map((catalog)=>(
-                          <option value={catalog.instance}>{catalog.instance}</option>
+                          <option value={catalog.catalogName}>{catalog.catalogName}</option>
                         ))}
                       </select>
           </div>
@@ -318,7 +346,7 @@ onClick={(e)=>handleEdit(e,user)}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save Changes</button>
+        <button type="button" class="btn btn-primary" onClick={(e)=>handleSaveChanges(e)}>Save Changes</button>
       </div>
     </div>
   </div>

@@ -109,6 +109,9 @@ const MultipleSelect = (props) => {
   const [days, setDays] = useState();
   const [totalcost, setTotalcost] = useState();
 
+  //catalog name state
+  const [catalogName,setCatalogName]=useState('');
+
   const [memory, setMemory] = useState([]);
   const [VCPU, setVCPU] = useState([]);
   //type of instance assigning
@@ -132,7 +135,6 @@ const MultipleSelect = (props) => {
 
   React.useEffect(() => {
     const getinstance = async () => {
-      console.log("accessing");
       if (vcpu !== "" && ram !== "") {
         const singleInstance = await axios.post(
           "http://localhost:5000/api/services/get-singleec2",
@@ -142,8 +144,9 @@ const MultipleSelect = (props) => {
             vcpu: vcpu,
           }
         );
+        
         if (singleInstance.data.success) {
-          let data = singleInstance.data.getSingle;
+          let data = singleInstance.data.getSingle.instanceName;
           setINstance(data);
           // console.log()
         } else {
@@ -227,7 +230,6 @@ const MultipleSelect = (props) => {
 
   //saving catalogs
   // const [catalog, setCatalog] = useState([]);
-  console.log(catalog);
   //save configurations
   const handleSaveConfigurations = async (e) => {
     e.preventDefault();
@@ -249,9 +251,9 @@ const MultipleSelect = (props) => {
             storage,
             instance,
             region,
-            days,
-            hours,
-            users,
+            // days,
+            // hours,
+            // users,
           }
         );
         if (update_document.data.success) {
@@ -321,9 +323,9 @@ const MultipleSelect = (props) => {
                 ram,
                 instance,
                 region,
-                days,
-                hours,
-                users,
+                // days,
+                // hours,
+                // users,
                 id,
               }
             : item
@@ -353,13 +355,12 @@ const MultipleSelect = (props) => {
             storage,
             instance,
             region,
-            days,
-            hours,
-            users,
+            // days,
+            // hours,
+            // users,
           }
         );
 
-        console.log(res);
         if (res.data.success) {
           toast.success(res.data.message);
           const prevConfigModel =
@@ -405,9 +406,9 @@ const MultipleSelect = (props) => {
             ram,
             instance,
             region,
-            days,
-            hours,
-            users,
+            // days,
+            // hours,
+            // users,
             id,
           },
         ]);
@@ -433,7 +434,7 @@ const MultipleSelect = (props) => {
 
   const handleDelete = async (e, instance) => {
     e.preventDefault();
-    const { service, os, vcpu, storage, ram, userId, id } = instance;
+    const { service, os, vcpu, storage, ram, userId, id ,catalogName} = instance;
     setCatalog((prevItems) =>
       prevItems.filter((item) => item.id !== instance.id)
     );
@@ -513,9 +514,9 @@ const MultipleSelect = (props) => {
     setStorage(instance.storage);
     setInstance(instance.Instance);
     setRegion(instance.region);
-    setDays(instance.days);
-    setHours(instance.hours);
-    setUsers(instance.users);
+    // setDays(instance.days);
+    // setHours(instance.hours);
+    // setUsers(instance.users);
     setEdit_id(instance.id);
   };
 
@@ -526,15 +527,34 @@ const MultipleSelect = (props) => {
   const handleConfirm = async (e) => {
     e.preventDefault();
     const catalogContainer = JSON.parse(localStorage.getItem('configModel'))
+    
     try{
-      const result = await axios.post("http://localhost:5000/api/services/awsconfirm_model",
-        {
-          catalogContainer
-        }
-      )
-      if(result.data.success){
-        localStorage.removeItem('configModel')
+      if(!catalogContainer){
+        toast.error("No instance available")
       }
+      if(catalogContainer.serviceAws.length>0){
+        const result = await axios.post("http://localhost:5000/api/services/awsconfirm_model",
+          {
+            catalogContainer,
+            users,
+            days,
+            hours,
+            catalogName,
+            
+          }
+        )
+        if(result.data.success){
+          toast.success(result.data.message)
+          localStorage.removeItem('configModel')
+        }
+        else{
+          toast.error(result.data.message)
+        }
+      }
+      else{
+        toast.error("No data is available to save")
+      }
+      
     }
     catch(error){
       console.log(error)
@@ -741,16 +761,16 @@ const MultipleSelect = (props) => {
                   input={<OutlinedInput label="Name" />}
                   MenuProps={MenuProps}
                 >
-                  {Instance.map((name) => (
+                  {/* {Instance.map((name) => ( */}
                     <MenuItem
                       className="menuitem"
                       // key={name}
-                      value={name.instanceName}
+                      value={Instance}
                       // style={getStyles(name, personName, theme)}
                     >
-                      {name.instanceName}
+                      {Instance}
                     </MenuItem>
-                  ))}
+                  {/* ))} */}
                 </Select>
               </FormControl>
             </div>
@@ -787,8 +807,8 @@ const MultipleSelect = (props) => {
               </FormControl>
             </div>
           </div>
-          <div className="col-12 col-ms-12 col-md-12 col-lg-4">
-            {" "}
+          {/* <div className="col-12 col-ms-12 col-md-12 col-lg-4">
+            
             <div className="instance">
               <FormControl sx={{ m: 1, width: 300 }}>
                 <InputLabel id="no_days" style={{ fontsize: "22px" }}>
@@ -803,8 +823,8 @@ const MultipleSelect = (props) => {
                 ></Input>
               </FormControl>
             </div>
-          </div>
-          <div className="col-12 col-ms-12 col-md-12 col-lg-4">
+          </div> */}
+          {/* <div className="col-12 col-ms-12 col-md-12 col-lg-4">
             <div className="instance">
               <FormControl sx={{ m: 1, width: 300 }}>
                 <InputLabel id="no_hours" style={{ fontsize: "22px" }}>
@@ -819,12 +839,12 @@ const MultipleSelect = (props) => {
                 ></Input>
               </FormControl>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* row 4 for submitting intance and its configurations */}
         <div className="row  d-flex flex-row justify-content-center m-2 text-center">
-          <div className="instance mb-2">
+          {/* <div className="instance mb-2">
             <FormControl sx={{ m: 1, width: 300 }}>
               <InputLabel id="no_users" style={{ fontsize: "22px" }}>
                 Enter Number of IAM users
@@ -837,7 +857,7 @@ const MultipleSelect = (props) => {
                 onChange={(e) => setUsers(e.target.value)}
               ></Input>
             </FormControl>
-          </div>
+          </div> */}
           <form onSubmit={handleSaveConfigurations}>
             <button
               type="submit"
@@ -894,7 +914,8 @@ const MultipleSelect = (props) => {
                   <td colSpan={2}>
                     <div className="selection">
                       {/* <form> */}
-                      {/* <div className="form-group">
+
+                      <div className="form-group">
                         <label for="no_users">Enter No of IAM Users</label>
                         <input
                           type="number"
@@ -904,7 +925,32 @@ const MultipleSelect = (props) => {
                           value={users}
                           onChange={(e) => setUsers(e.target.value)}
                         />
-                      </div> */}
+                      </div>
+
+                      <div className="form-group">
+                        <label for="no_days">Enter No of Days</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          id="no_days"
+                          placeholder="Enter Days"
+                          value={days}
+                          onChange={(e) => setDays(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label for="no_hours">Enter No of Hours</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          id="no_hours"
+                          placeholder="Enter Hours"
+                          value={hours}
+                          onChange={(e) => setHours(e.target.value)}
+                        />
+                      </div>
+
                       <div className="form-group p-2 text-center">
                         <button
                           type="button"
@@ -938,6 +984,18 @@ const MultipleSelect = (props) => {
                   <td  ><span style={{ fontsize: "22px", fontWeight: 'bold', fontFamily: 'inherit', }} className="my-1">Total Cost:100$</span></td>
                 </tr> */}
                 <tr>
+                  <td><div className="form-group">
+                        <label for="catalog_name" style={{fontSize:'15px'}}>Enter unique name to identify catalog</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="catalog_name"
+                          placeholder="Enter name"
+                          value={catalogName}
+                          onChange={(e) => setCatalogName(e.target.value)}
+                        />
+                      </div></td></tr>
+                    <tr>
                   <td colSpan={2} className="text-center">
                     <button
                       type="button"

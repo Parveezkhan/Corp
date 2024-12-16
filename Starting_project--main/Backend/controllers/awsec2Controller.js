@@ -58,7 +58,7 @@ const awsGetConfigOnId = async (req,res) =>{
   
   try{
     const {adminId} = req.body;
-    const configs = await awsConfigModel.find({userId:adminId});
+    const configs = await confirmAwsModel.find({adminId:adminId});
     if(!configs){
       return res.send({
         success:false,
@@ -85,13 +85,12 @@ const awsSingleInstance = async (req,res) =>{
   try{
     const {service,memory,vcpu} = req.body;
     console.log(service,memory,vcpu)
-    const getSingle = await awsEC2Model.find({
+    const getSingle = await awsEC2Model.findOne({
       Service:service,
       memory:memory,
       vcpu:vcpu,
     })
-    console.log(getSingle)
-    if(!getSingle.length>0){
+    if(!getSingle){
       return res.send({
         success:false,
         message:"No Particular Instance Is Found..",
@@ -114,11 +113,36 @@ const awsSingleInstance = async (req,res) =>{
   
 }
 
+const awsConfigArray = async (req,res)=>{
+  try{
+    const {ids}=req.body;
+    if(!ids) res.send('Ids are required')
+    const data = await awsConfigModel.find({'_id':{$in:ids}})
+    if(!data){
+      return res.status(201).send({
+        success:false,
+        message:"Ids are invalid",
+      })
+    }
+    return res.status(200).send({
+      success:true,
+      message:"Successfully accessed",
+      data,
+    })
+  }
+  catch(error){
+    return res.send({
+      success:false,
+      message:"Could not access the data",
+      error,
+    })
+  }
+}
+
 const awsEC2config = async (req, res) => {
   console.log('connecting')
-  console.log(req.body)
   try {
-    const { service, os, vcpu, ram,storage, instance,region,days,hours,users ,userId,catalog} = req.body;
+    const { service, os, vcpu, ram,storage, instance,region ,userId,catalog} = req.body;
     console.log(catalog)
     if (!service) return res.send({ message: "Service is required.." });
     if (!os) return res.send({ message: "os is required.." });
@@ -127,9 +151,9 @@ const awsEC2config = async (req, res) => {
     if (!storage) return res.send({ message: "Storage is required.." });
     if (!instance) return res.send({ message: "Instance is required.." });
     if (!region) return res.send({ message: "Region is required.." });
-    if (!days) return res.send({ message: "Days is required.." });
-    if (!hours) return res.send({ message: "Hours is required.." });
-    if (!users) return res.send({ message: "Users is required.." });
+    // if (!days) return res.send({ message: "Days is required.." });
+    // if (!hours) return res.send({ message: "Hours is required.." });
+    // if (!users) return res.send({ message: "Users is required.." });
     if(!userId) return res.send({message:"userId is required.."})
 
     const config = await new awsConfigModel({
@@ -141,12 +165,12 @@ const awsEC2config = async (req, res) => {
           storage,
           instance,
           region,
-          days,
-          hours,
-          users,
+          // days,
+          // hours,
+          // users,
   }).save();
   // const config = await new awsConfigModel({userId:userId,config:catalog}).save();
-
+  console.log(config)
     res.status(201).send({
       success: true,
       message:"Successfully added..",
@@ -279,7 +303,7 @@ const awsEC2config_delete = async(req,res)=>{
 
 const confirmawsmodel = async(req,res)=>{
   try {
-    const { catalogContainer } = req.body;
+    const { catalogContainer,users,days,hours ,catalogName} = req.body;
   
     // Check if catalog exists and return early if not
     if (!catalogContainer) {
@@ -289,6 +313,10 @@ const confirmawsmodel = async(req,res)=>{
     const createCatalog = await new confirmAwsModel({
       adminId: catalogContainer.userId,
       serviceAws: catalogContainer.serviceAws,
+      users:users,
+      days:days,
+      hours:hours,
+      catalogName:catalogName,
     }).save();
   
     // If the catalog is not created successfully
@@ -316,6 +344,32 @@ const confirmawsmodel = async(req,res)=>{
   
 }
 
+const getConfirmModelOnId = async(req,res)=>{
+  try{
+    const Id = req.params['id']
+    const getCatalogs = await confirmAwsModel.findOne({_id:Id})
+  
+    if(!getCatalogs){
+      return res.send({
+        success:false,
+        message:"Id is invalid",
+      })
+    }
+    return res.status(200).send({
+      success:true,
+      message:"Successfully accessed catalogs",
+      getCatalogs,
+    })
+  }
+  catch(error){
+    return res.status(500).send({
+      success:false,
+      message:"Could not get awscatlog",
+      error,
+    })
+  }
+}
+
 module.exports = { 
   awsEC2Get,
   awsEC2config,
@@ -326,4 +380,6 @@ module.exports = {
   awsGetConfigs,
   awsGetConfigOnId,
   confirmawsmodel,
+  getConfirmModelOnId,
+  awsConfigArray,
  };
